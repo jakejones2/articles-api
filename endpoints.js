@@ -27,4 +27,19 @@ module.exports = {
       ],
     },
   },
+  "GET /api/articles/:article_id": {
+    description: "serves an individual article based on article_id parameter",
+    queries: [],
+    exampleResponse: {
+      article: {
+        title: "Z",
+        topic: "mitch",
+        author: "icellusedkars",
+        body: "I was hungry.",
+        created_at: "2020-01-07T14:08:00.000Z",
+        article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+      },
+    },
+  },
 };
