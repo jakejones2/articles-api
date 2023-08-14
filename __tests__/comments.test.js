@@ -40,4 +40,20 @@ describe("GET comments", () => {
         });
       });
   });
+  test("receive 404 when article_id out of range", () => {
+    return request(app)
+      .get("/api/articles/0/comments")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Article cannot be found");
+      });
+  });
+  test("receive 400 when article_id malformed", () => {
+    return request(app)
+      .get("/api/articles/frog/comments")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
 });
