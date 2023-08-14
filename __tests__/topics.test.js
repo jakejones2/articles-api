@@ -13,8 +13,23 @@ beforeEach(() => {
 });
 
 describe("topics", () => {
-  test("should have supertest", () => {
-    console.log(data);
-    expect(true).toBe(true);
+  describe("GET /api/topics", () => {
+    test("should ", () => {
+      expect().toBe();
+    });
+    test("GET 200 from /api/topics", () => {
+      return request(app).get("/api/topics").expect(200);
+    });
+    test("GET data from /api/topics", () => {
+      return request(app)
+        .get("/api/topics")
+        .expect(200)
+        .then(({ body: { topics } }) => {
+          topics.forEach((topic) => {
+            expect(topic).toHaveProperty("slug", expect.any(String));
+            expect(topic).toHaveProperty("description", expect.any(String));
+          });
+        });
+    });
   });
 });
