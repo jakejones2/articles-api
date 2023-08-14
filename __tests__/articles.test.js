@@ -135,7 +135,7 @@ describe("PATCH articles/:article_id", () => {
         });
       });
   });
-  test("Returns 400 if patch body incorrect", () => {
+  test("Returns 400 if patch body has incorrect syntax", () => {
     const examplePatch = { votes: -1000 };
     return request(app)
       .patch("/api/articles/5")
