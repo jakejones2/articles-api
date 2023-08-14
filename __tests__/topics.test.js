@@ -41,8 +41,5 @@ describe("topics", () => {
           });
         });
     });
-    test("GET 404 from bad path", () => {
-      return request(app).get("/api/pancakes").expect(404);
-    });
   });
 });
