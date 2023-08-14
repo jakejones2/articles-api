@@ -22,6 +22,10 @@ describe("topics", () => {
             expect(topic).toHaveProperty("slug", expect.any(String));
             expect(topic).toHaveProperty("description", expect.any(String));
           });
+          expect(topics[0]).toMatchObject({
+            description: "The man, the Mitch, the legend",
+            slug: "mitch",
+          });
         });
     });
     test("GET 404 from bad path", () => {
