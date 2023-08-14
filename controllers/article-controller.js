@@ -1,7 +1,9 @@
 const { selectArticleById } = require("../models/articles-model");
 
 function getArticleById(req, res, next) {
-  res.status(200).send();
+  selectArticleById(req.params.article_id).then((article) => {
+    res.status(200).send({ article });
+  });
 }
 
 module.exports = { getArticleById };
