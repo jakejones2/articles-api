@@ -1,4 +1,4 @@
-const { selectComments, insertComments } = require("../models/comments-model");
+const { selectComments, insertComment } = require("../models/comments-model");
 
 function getComments(req, res, next) {
   selectComments(req.params.article_id)
@@ -11,7 +11,9 @@ function getComments(req, res, next) {
 }
 
 function createComments(req, res, next) {
-  res.status(201).send();
+  insertComment(req.params.article_id, req.body).then((comment) => {
+    res.status(201).send({ comment });
+  });
 }
 
 module.exports = { getComments, createComments };

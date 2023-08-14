@@ -54,12 +54,30 @@ describe("GET comments", () => {
 describe("POST comments", () => {
   test("receive 201 when POST /api/articles/:article_id/comments ", () => {
     const testComment = {
-      body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
       username: "butter_bridge",
+      body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
     };
     return request(app)
       .post("/api/articles/1/comments")
       .send(testComment)
       .expect(201);
+  });
+  test("receive posted comment when POST /api/articles/:article_id/comments", () => {
+    const testComment = {
+      username: "butter_bridge",
+      body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(testComment)
+      .then(({ body: { comment } }) => {
+        expect(comment).toMatchObject({
+          author: "butter_bridge",
+          body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+          article_id: 1,
+          votes: 0,
+        });
+        expect(comment).toHaveProperty("created_at", expect.any(String));
+      });
   });
 });

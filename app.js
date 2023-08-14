@@ -21,6 +21,8 @@ app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles/:article_id/comments", getComments);
 app.get("/api/topics", getTopics);
 
+app.use(express.json());
+
 app.post("/api/articles/:article_id/comments", createComments);
 
 app.use(psqlErrorHandler);

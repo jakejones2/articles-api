@@ -1,5 +1,10 @@
 const db = require("../db/connection");
 const format = require("pg-format");
+const {
+  createRef,
+  formatComments,
+  convertTimestampToDate,
+} = require("../db/seeds/utils");
 
 function selectComments(article_id) {
   return db
@@ -12,6 +17,20 @@ function selectComments(article_id) {
     });
 }
 
-function insertComments(article_id) {}
+function insertComment(article_id, body) {
+  const commentList = [[body.body, body.username, article_id, 0, new Date()]];
+  const queryString = format(
+    `
+    INSERT INTO comments
+      (body, author, article_id, votes, created_at)
+    VALUES %L
+    RETURNING *;
+    `,
+    commentList
+  );
+  return db.query(queryString).then(({ rows }) => {
+    return rows[0];
+  });
+}
 
-module.exports = { selectComments, insertComments };
+module.exports = { selectComments, insertComment };
