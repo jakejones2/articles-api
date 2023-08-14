@@ -22,14 +22,7 @@ describe("GET comments", () => {
       .expect(200)
       .then(({ body: { comments } }) => {
         expect(comments.length > 0).toBe(true);
-        comments.forEach((comment) => {
-          expect(comment).toHaveProperty("comment_id", expect.any(Number));
-          expect(comment).toHaveProperty("body", expect.any(String));
-          expect(comment).toHaveProperty("article_id", expect.any(Number));
-          expect(comment).toHaveProperty("author", expect.any(String));
-          expect(comment).toHaveProperty("votes", expect.any(Number));
-          expect(comment).toHaveProperty("created_at", expect.any(String));
-        });
+        expect(comments.length).toBe(11);
         expect(comments[0]).toMatchObject({
           comment_id: 2,
           body: "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
