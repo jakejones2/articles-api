@@ -1,10 +1,5 @@
 const db = require("../db/connection");
 const format = require("pg-format");
-const {
-  createRef,
-  formatComments,
-  convertTimestampToDate,
-} = require("../db/seeds/utils");
 
 function selectComments(article_id) {
   return db
