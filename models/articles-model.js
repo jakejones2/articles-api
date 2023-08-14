@@ -12,10 +12,4 @@ function selectArticleById(article_id) {
     });
 }
 
-function selectArticles() {
-  return db.query("SELECT * FROM articles").then(({ rows }) => {
-    return rows;
-  });
-}
-
-module.exports = { selectArticleById, selectArticles };
+module.exports = { selectArticleById };
