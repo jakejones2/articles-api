@@ -80,4 +80,40 @@ describe("POST comments", () => {
         expect(comment).toHaveProperty("created_at", expect.any(String));
       });
   });
+  test("receive 400 if username not in users table", () => {
+    const testComment = {
+      username: "bob",
+      body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(testComment)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("User not registered");
+      });
+  });
+  test("receive 400 if body is not a string", () => {
+    const testComment = {
+      username: "butter_bridge",
+      body: true,
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(testComment)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("receive 400 if POST body is not json", () => {
+    const testComment = "apple";
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(testComment)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
 });

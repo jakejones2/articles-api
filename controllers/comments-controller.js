@@ -11,9 +11,13 @@ function getComments(req, res, next) {
 }
 
 function createComments(req, res, next) {
-  insertComment(req.params.article_id, req.body).then((comment) => {
-    res.status(201).send({ comment });
-  });
+  insertComment(req.params.article_id, req.body)
+    .then((comment) => {
+      res.status(201).send({ comment });
+    })
+    .catch((err) => {
+      next(err);
+    });
 }
 
 module.exports = { getComments, createComments };
