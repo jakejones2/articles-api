@@ -49,4 +49,20 @@ describe("GET articles/:article_id", () => {
         });
       });
   });
+  test("Out of range id produces 404 and message", () => {
+    return request(app)
+      .get("/api/articles/36")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Article cannot be found");
+      });
+  });
+  test("Bad request produces a 400 and message", () => {
+    return request(app)
+      .get("/api/articles/banana")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
 });
