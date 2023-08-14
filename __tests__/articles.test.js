@@ -22,6 +22,7 @@ describe("GET articles/:article_id", () => {
       .expect(200)
       .then(({ body: { article } }) => {
         expect(article).toMatchObject({
+          article_id: 1,
           title: "Living in the shadow of a great man",
           topic: "mitch",
           author: "butter_bridge",
@@ -39,6 +40,7 @@ describe("GET articles/:article_id", () => {
       .expect(200)
       .then(({ body: { article } }) => {
         expect(article).toMatchObject({
+          article_id: 7,
           title: "Z",
           topic: "mitch",
           author: "icellusedkars",

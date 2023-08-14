@@ -8,7 +8,7 @@ const {
 } = require("./controllers/error-handlers");
 const { getTopics } = require("./controllers/topics-controller");
 const { getApi } = require("./controllers/api-controller");
-const { getArticleById } = require("./controllers/article-controller");
+const { getArticleById } = require("./controllers/articles-controller");
 
 module.exports = app;
 
