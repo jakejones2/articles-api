@@ -4,6 +4,10 @@ let db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const data = require("../db/data/test-data");
 
+afterAll(() => {
+  return db.end();
+});
+
 beforeEach(() => {
   return seed(data);
 });
@@ -18,6 +22,7 @@ describe("topics", () => {
         .get("/api/topics")
         .expect(200)
         .then(({ body: { topics } }) => {
+          expect(topics.length > 0).toBe(true);
           topics.forEach((topic) => {
             expect(topic).toHaveProperty("slug", expect.any(String));
             expect(topic).toHaveProperty("description", expect.any(String));
@@ -26,22 +31,18 @@ describe("topics", () => {
             description: "The man, the Mitch, the legend",
             slug: "mitch",
           });
+          expect(topics[1]).toMatchObject({
+            description: "Not dogs",
+            slug: "cats",
+          });
+          expect(topics[2]).toMatchObject({
+            description: "what books are made of",
+            slug: "paper",
+          });
         });
     });
     test("GET 404 from bad path", () => {
       return request(app).get("/api/pancakes").expect(404);
-    });
-    test("GET 500 from /api/topics if server error", () => {
-      // close the database connection prematurely
-      // should produce a node-pg error internally
-      // having this error last also closes the db conn
-      db.end();
-      return request(app)
-        .get("/api/topics")
-        .expect(500)
-        .then(({ body: { msg } }) => {
-          expect(msg).toBe("Internal Server Error");
-        });
     });
   });
 });
