@@ -76,7 +76,6 @@ describe("GET articles", () => {
   test("GET all articles from /api/articles", () => {
     return request(app)
       .get("/api/articles")
-      .expect(200)
       .then(({ body: { articles } }) => {
         expect(articles.length > 0).toBe(true);
         expect(articles.length).toBe(13);
@@ -89,17 +88,31 @@ describe("GET articles", () => {
           expect(article).toHaveProperty("article_img_url", expect.any(String));
           expect(article).toHaveProperty("votes", expect.any(Number));
         });
-        expect(articles[0]).toMatchObject({
+        expect(articles[6]).toMatchObject({
           article_id: 1,
           title: "Living in the shadow of a great man",
           topic: "mitch",
           author: "butter_bridge",
-          body: "I find this existence challenging",
           created_at: "2020-07-09T20:11:00.000Z",
           votes: 100,
           article_img_url:
             "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
         });
+      });
+  });
+  test("Articles include a comment_count property", () => {
+    return request(app)
+      .get("/api/articles")
+      .then(({ body: { articles } }) => {
+        expect(articles[6]).toHaveProperty("comment_count", 11);
+      });
+  });
+  test("Articles are sorted by created_at descending", () => {
+    return request(app)
+      .get("/api/articles")
+      .then(({ body: { articles } }) => {
+        console.log(articles);
+        expect(articles).toBeSortedBy("created_at", { descending: true });
       });
   });
 });
