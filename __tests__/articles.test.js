@@ -115,6 +115,138 @@ describe("GET articles", () => {
         expect(articles).toBeSortedBy("created_at", { descending: true });
       });
   });
+  test("Should accept the query topic", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .then(({ body: { articles } }) => {
+        articles.forEach((article) => {
+          expect(article).toHaveProperty("topic", "mitch");
+        });
+      });
+  });
+  test("Should return 404 if topic not in topics table", () => {
+    return request(app)
+      .get("/api/articles?topic=space")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Topic not available");
+      });
+  });
+  test("should be able to sort by votes", () => {
+    return request(app)
+      .get("/api/articles?sort_by=votes")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSortedBy("votes", { descending: true });
+      });
+  });
+  test("should be able to sort by article_id", () => {
+    return request(app)
+      .get("/api/articles?sort_by=article_id")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSortedBy("article_id", { descending: true });
+      });
+  });
+  test("should be able to sort by title", () => {
+    return request(app)
+      .get("/api/articles?sort_by=title")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSortedBy("title", { descending: true });
+      });
+  });
+  test("should be able to sort by topic", () => {
+    return request(app)
+      .get("/api/articles?sort_by=topic")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSortedBy("topic", { descending: true });
+      });
+  });
+  test("should be able to sort by author", () => {
+    return request(app)
+      .get("/api/articles?sort_by=author")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSortedBy("author", { descending: true });
+      });
+  });
+  test("should be able to sort by created_at", () => {
+    return request(app)
+      .get("/api/articles?sort_by=created_at")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+  test("should be able to sort by comment_count", () => {
+    return request(app)
+      .get("/api/articles?sort_by=comment_count")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSortedBy("comment_count", { descending: true });
+      });
+  });
+  test("should be able to sort by article_img_url", () => {
+    return request(app)
+      .get("/api/articles?sort_by=article_img_url")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSortedBy("article_img_url", { descending: true });
+      });
+  });
+  test("invalid sort_by query returns 400", () => {
+    return request(app)
+      .get("/api/articles?sort_by=pancakes")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("should be able to add query order=asc", () => {
+    return request(app)
+      .get("/api/articles?order=asc")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSortedBy("created_at");
+      });
+  });
+  test("should be able to add query order=desc", () => {
+    return request(app)
+      .get("/api/articles?order=desc")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+  test("should return 400 if order is not asc or desc", () => {
+    return request(app)
+      .get("/api/articles?order=desc;+DROP+TABLE+IF+EXISTS+articles;")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("all queries should work together", () => {
+    return request(app)
+      .get("/api/articles?topic=cats&sort_by=article_id&order=asc")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSortedBy("article_id");
+        articles.forEach((article) => {
+          expect(article.topic).toBe("cats");
+        });
+      });
+  });
+  test("if one query is incorrect and others pass, still return 400", () => {
+    return request(app)
+      .get("/api/articles?topic=cats&sort_by=article_id&order=OVERHERE")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
 });
 
 describe("PATCH articles/:article_id", () => {
