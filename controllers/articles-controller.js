@@ -39,13 +39,13 @@ function getArticles(req, res, next) {
         "article_img_url",
       ];
       if (
-        (!topicList.includes(topic) && topic) ||
-        !validSortBy.includes(sort_by) ||
-        !["ASC", "DESC"].includes(order)
+        (topicList.includes(topic) || !topic) &&
+        validSortBy.includes(sort_by) &&
+        ["ASC", "DESC"].includes(order)
       ) {
-        return Promise.reject({ status: 404, msg: "Query not available" });
-      } else {
         return selectArticles(topic, sort_by, order);
+      } else {
+        return Promise.reject({ status: 404, msg: "Query not available" });
       }
     })
     .then((articles) => {

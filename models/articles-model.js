@@ -12,7 +12,7 @@ function selectArticleById(article_id) {
     });
 }
 
-function selectArticles(topic, sort_by = "created_at", order = "DESC") {
+function selectArticles(topic, sort_by, order) {
   let queryString = `
     SELECT       
       articles.author, 
