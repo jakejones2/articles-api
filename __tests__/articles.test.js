@@ -111,7 +111,6 @@ describe("GET articles", () => {
     return request(app)
       .get("/api/articles")
       .then(({ body: { articles } }) => {
-        console.log(articles);
         expect(articles).toBeSortedBy("created_at", { descending: true });
       });
   });
