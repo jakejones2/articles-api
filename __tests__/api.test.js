@@ -61,3 +61,14 @@ describe("/api", () => {
       });
   });
 });
+
+describe("bad path", () => {
+  test("bad paths should receive 404", () => {
+    return request(app)
+      .get("/api/dogs")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Not found");
+      });
+  });
+});
