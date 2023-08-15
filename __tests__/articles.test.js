@@ -153,6 +153,16 @@ describe("PATCH articles/:article_id", () => {
         expect(msg).toBe("Invalid PATCH body");
       });
   });
+  test("Returns 400 if patch inc_votes is not a number", () => {
+    const examplePatch = { votes: "cat" };
+    return request(app)
+      .patch("/api/articles/5")
+      .send(examplePatch)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Invalid PATCH body");
+      });
+  });
   test("Returns 404 if article_id out of range", () => {
     const examplePatch = { inc_votes: 3 };
     return request(app)
@@ -161,6 +171,16 @@ describe("PATCH articles/:article_id", () => {
       .expect(404)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("Article not found");
+      });
+  });
+  test("Returns 400 if article_id is invalid", () => {
+    const examplePatch = { inc_votes: 3 };
+    return request(app)
+      .patch("/api/articles/geese")
+      .send(examplePatch)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
       });
   });
 });
