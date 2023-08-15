@@ -6,6 +6,7 @@ const {
   customErrorHandler,
   psqlErrorHandler,
 } = require("./controllers/error-handlers");
+const notFound = require("./controllers/not-found");
 const { getTopics } = require("./controllers/topics-controller");
 const { getApi } = require("./controllers/api-controller");
 const {
@@ -13,7 +14,10 @@ const {
   getArticles,
   patchArticleById,
 } = require("./controllers/articles-controller");
-const { getComments } = require("./controllers/comments-controller");
+const {
+  getComments,
+  createComments,
+} = require("./controllers/comments-controller");
 
 module.exports = app;
 
@@ -26,6 +30,12 @@ app.get("/api/topics", getTopics);
 app.use(express.json());
 
 app.patch("/api/articles/:article_id", patchArticleById);
+
+app.use(express.json());
+
+app.post("/api/articles/:article_id/comments", createComments);
+
+app.use(notFound);
 
 app.use(psqlErrorHandler);
 app.use(customErrorHandler);

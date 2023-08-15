@@ -50,3 +50,151 @@ describe("GET comments", () => {
       });
   });
 });
+
+describe("POST comments", () => {
+  test("receive 201 when POST /api/articles/:article_id/comments ", () => {
+    const testComment = {
+      username: "butter_bridge",
+      body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(testComment)
+      .expect(201);
+  });
+  test("receive 201 when POST body has extra information", () => {
+    const testComment = {
+      username: "butter_bridge",
+      body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+      randomkey: "how did this get here",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(testComment)
+      .expect(201);
+  });
+  test("receive posted comment when POST /api/articles/:article_id/comments", () => {
+    const testComment = {
+      username: "butter_bridge",
+      body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(testComment)
+      .then(({ body: { comment } }) => {
+        expect(comment).toMatchObject({
+          author: "butter_bridge",
+          body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+          article_id: 1,
+          votes: 0,
+        });
+        expect(comment).toHaveProperty("created_at", expect.any(String));
+      });
+  });
+  test("posted comment ignores extra keys in body", () => {
+    const testComment = {
+      username: "butter_bridge",
+      body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+      favouriteFruit: "banana",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(testComment)
+      .then(({ body: { comment } }) => {
+        expect(comment).toMatchObject({
+          author: "butter_bridge",
+          body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+          article_id: 1,
+          votes: 0,
+        });
+        expect(comment).toHaveProperty("created_at", expect.any(String));
+        expect(comment).not.toHaveProperty("favouriteFruit");
+      });
+  });
+  test("receive 404 if username not in users table", () => {
+    const testComment = {
+      username: "bob",
+      body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(testComment)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("User not found");
+      });
+  });
+  test("receive 400 if body is not a string", () => {
+    const testComment = {
+      username: "butter_bridge",
+      body: true,
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(testComment)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("receive 400 if username is missing", () => {
+    const testComment = {
+      body: true,
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(testComment)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("receive 400 if body is missing", () => {
+    const testComment = {
+      username: "butter_bridge",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(testComment)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("receive 400 if article_id is invalid", () => {
+    const testComment = {
+      username: "butter_bridge",
+      body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+    };
+    return request(app)
+      .post("/api/articles/kiwi/comments")
+      .send(testComment)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("receive 404 if article_id is out of range:", () => {
+    const testComment = {
+      username: "butter_bridge",
+      body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+    };
+    return request(app)
+      .post("/api/articles/10000/comments")
+      .send(testComment)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Item not found");
+      });
+  });
+  test("receive 400 if POST body is not json", () => {
+    const testComment = "apple";
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(testComment)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+});
