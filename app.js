@@ -16,9 +16,11 @@ const {
 } = require("./controllers/articles-controller");
 const {
   getComments,
-  createComments,
+  createComment,
+  deleteComment,
 } = require("./controllers/comments-controller");
 const { getUsers } = require("./controllers/user-controller");
+
 app.get("/api", getApi);
 app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles", getArticles);
@@ -26,13 +28,15 @@ app.get("/api/articles/:article_id/comments", getComments);
 app.get("/api/topics", getTopics);
 app.get("/api/users", getUsers);
 
+app.delete("/api/comments/:comment_id", deleteComment);
+
 app.use(express.json());
 
 app.patch("/api/articles/:article_id", patchArticleById);
 
 app.use(express.json());
 
-app.post("/api/articles/:article_id/comments", createComments);
+app.post("/api/articles/:article_id/comments", createComment);
 
 app.use(notFound);
 

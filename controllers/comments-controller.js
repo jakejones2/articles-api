@@ -1,4 +1,8 @@
-const { selectComments, insertComment } = require("../models/comments-model");
+const {
+  selectComments,
+  insertComment,
+  removeComment,
+} = require("../models/comments-model");
 const { selectUsernames } = require("../models/users-model");
 
 function getComments(req, res, next) {
@@ -6,12 +10,10 @@ function getComments(req, res, next) {
     .then((comments) => {
       return res.status(200).send({ comments });
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch(next);
 }
 
-function createComments(req, res, next) {
+function createComment(req, res, next) {
   selectUsernames()
     .then((rows) => {
       return rows.map((row) => row.username);
@@ -21,10 +23,16 @@ function createComments(req, res, next) {
         .then((comment) => {
           res.status(201).send({ comment });
         })
-        .catch((err) => {
-          next(err);
-        });
+        .catch(next);
     });
 }
 
-module.exports = { getComments, createComments };
+function deleteComment(req, res, next) {
+  removeComment(req.params.comment_id)
+    .then(() => {
+      res.sendStatus(204);
+    })
+    .catch(next);
+}
+
+module.exports = { getComments, createComment, deleteComment };

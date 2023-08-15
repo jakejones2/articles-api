@@ -88,4 +88,9 @@ module.exports = {
       },
     ],
   },
+  "DELETE /api/comments/:comment_id": {
+    description: "Deletes a comment based on comment_id in url. Returns a 204.",
+    queries: [],
+    exampleResponse: null,
+  },
 };

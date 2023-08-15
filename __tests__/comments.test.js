@@ -198,3 +198,38 @@ describe("POST comments", () => {
       });
   });
 });
+
+describe("DELETE comments by id", () => {
+  test("DELETE 204 from /api/comments/:comment_id", () => {
+    return request(app).delete("/api/comments/1").expect(204);
+  });
+  test("DELETE comments deletes comment", () => {
+    return request(app)
+      .delete("/api/comments/1")
+      .then(() => {
+        return request(app)
+          .get("/api/articles/9/comments")
+          .expect(200)
+          .then(({ body: { comments } }) => {
+            // used to be two comments, see data
+            expect(comments.length).toBe(1);
+          });
+      });
+  });
+  test("Returns 404 if comment not found", () => {
+    return request(app)
+      .delete("/api/comments/1000")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Comment not found");
+      });
+  });
+  test("Returns 400 if comment_id invalid", () => {
+    return request(app)
+      .delete("/api/comments/fryingpan")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+});
