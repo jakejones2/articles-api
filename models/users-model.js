@@ -7,4 +7,10 @@ function selectUsernames() {
   });
 }
 
-module.exports = { selectUsernames };
+function selectUsers() {
+  return db.query("SELECT * FROM users").then(({ rows }) => {
+    return rows;
+  });
+}
+
+module.exports = { selectUsernames, selectUsers };

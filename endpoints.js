@@ -76,6 +76,18 @@ module.exports = {
       created_at: "2020-10-31T03:03:00.000Z",
     },
   },
+  "GET /api/users": {
+    description: "Retreives all users as an array of objects",
+    queries: [],
+    exampleResponse: [
+      {
+        avatar_url:
+          "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+        name: "jonny",
+        username: "butter_bridge",
+      },
+    ],
+  },
   "DELETE /api/comments/:comment_id": {
     description: "Deletes a comment based on comment_id in url. Returns a 204.",
     queries: [],

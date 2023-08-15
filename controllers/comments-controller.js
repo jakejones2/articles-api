@@ -3,7 +3,7 @@ const {
   insertComment,
   removeComment,
 } = require("../models/comments-model");
-const { selectUsernames } = require("../models/usernames-model");
+const { selectUsernames } = require("../models/users-model");
 
 function getComments(req, res, next) {
   selectComments(req.params.article_id)
