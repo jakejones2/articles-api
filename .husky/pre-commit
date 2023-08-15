@@ -1,4 +1,9 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-npm test
+npm t api-users
+npm t api
+npm t articles
+npm t comments
+npm t topics
+npm t utils
