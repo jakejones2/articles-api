@@ -12,6 +12,30 @@ function selectArticleById(article_id) {
     });
 }
 
+function validateArticleQueries(topicList, topic, sort_by, order) {
+  const validSortBy = [
+    "article_id",
+    "title",
+    "topic",
+    "author",
+    "body",
+    "created_at",
+    "votes",
+    "comment_count",
+    "article_img_url",
+  ];
+  if (!topicList.includes(topic) && topic) {
+    return Promise.reject({ status: 404, msg: "Topic not available" });
+  } else if (
+    !validSortBy.includes(sort_by) ||
+    !["ASC", "DESC"].includes(order)
+  ) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  } else {
+    return selectArticles(topic, sort_by, order);
+  }
+}
+
 function selectArticles(topic, sort_by, order) {
   let queryString = `
     SELECT       
@@ -53,4 +77,9 @@ function updateArticleById(article_id, increase) {
     });
 }
 
-module.exports = { selectArticleById, updateArticleById, selectArticles };
+module.exports = {
+  selectArticleById,
+  updateArticleById,
+  selectArticles,
+  validateArticleQueries,
+};

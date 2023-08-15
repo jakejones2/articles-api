@@ -129,7 +129,7 @@ describe("GET articles", () => {
       .get("/api/articles?topic=space")
       .expect(404)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Query not available");
+        expect(msg).toBe("Topic not available");
       });
   });
   test("should be able to sort by votes", () => {
@@ -196,12 +196,12 @@ describe("GET articles", () => {
         expect(articles).toBeSortedBy("article_img_url", { descending: true });
       });
   });
-  test("invalid sort_by query returns 404", () => {
+  test("invalid sort_by query returns 400", () => {
     return request(app)
       .get("/api/articles?sort_by=pancakes")
-      .expect(404)
+      .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Query not available");
+        expect(msg).toBe("Bad Request");
       });
   });
   test("should be able to add query order=asc", () => {
@@ -220,12 +220,12 @@ describe("GET articles", () => {
         expect(articles).toBeSortedBy("created_at", { descending: true });
       });
   });
-  test("should return 404 if order is not asc or desc", () => {
+  test("should return 400 if order is not asc or desc", () => {
     return request(app)
       .get("/api/articles?order=desc;+DROP+TABLE+IF+EXISTS+articles;")
-      .expect(404)
+      .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Query not available");
+        expect(msg).toBe("Bad Request");
       });
   });
   test("all queries should work together", () => {
@@ -239,12 +239,12 @@ describe("GET articles", () => {
         });
       });
   });
-  test("if one query is incorrect and others pass, still return 404", () => {
+  test("if one query is incorrect and others pass, still return 400", () => {
     return request(app)
       .get("/api/articles?topic=cats&sort_by=article_id&order=OVERHERE")
-      .expect(404)
+      .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Query not available");
+        expect(msg).toBe("Bad Request");
       });
   });
 });

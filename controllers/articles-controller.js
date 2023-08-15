@@ -2,6 +2,7 @@ const {
   selectArticleById,
   selectArticles,
   updateArticleById,
+  validateArticleQueries,
 } = require("../models/articles-model");
 
 const { selectTopics } = require("../models/topics-model");
@@ -27,26 +28,7 @@ function getArticles(req, res, next) {
       const topic = req.query.topic;
       const sort_by = req.query.sort_by ? req.query.sort_by : "created_at";
       const order = req.query.order ? req.query.order.toUpperCase() : "DESC";
-      const validSortBy = [
-        "article_id",
-        "title",
-        "topic",
-        "author",
-        "body",
-        "created_at",
-        "votes",
-        "comment_count",
-        "article_img_url",
-      ];
-      if (
-        (topicList.includes(topic) || !topic) &&
-        validSortBy.includes(sort_by) &&
-        ["ASC", "DESC"].includes(order)
-      ) {
-        return selectArticles(topic, sort_by, order);
-      } else {
-        return Promise.reject({ status: 404, msg: "Query not available" });
-      }
+      return validateArticleQueries(topicList, topic, sort_by, order);
     })
     .then((articles) => {
       res.status(200).send({ articles });
