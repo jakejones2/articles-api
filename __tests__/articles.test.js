@@ -56,7 +56,7 @@ describe("GET articles/:article_id", () => {
       .get("/api/articles/36")
       .expect(404)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Article cannot be found");
+        expect(msg).toBe("Article not found");
       });
   });
   test("Bad request produces a 400 and message", () => {
