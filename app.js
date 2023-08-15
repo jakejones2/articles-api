@@ -9,7 +9,11 @@ const {
 const notFound = require("./controllers/not-found");
 const { getTopics } = require("./controllers/topics-controller");
 const { getApi } = require("./controllers/api-controller");
-const { getArticleById } = require("./controllers/articles-controller");
+const {
+  getArticleById,
+  getArticles,
+  patchArticleById,
+} = require("./controllers/articles-controller");
 const {
   getComments,
   createComments,
@@ -19,8 +23,13 @@ module.exports = app;
 
 app.get("/api", getApi);
 app.get("/api/articles/:article_id", getArticleById);
+app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id/comments", getComments);
 app.get("/api/topics", getTopics);
+
+app.use(express.json());
+
+app.patch("/api/articles/:article_id", patchArticleById);
 
 app.use(express.json());
 
