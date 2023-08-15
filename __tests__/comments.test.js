@@ -38,7 +38,7 @@ describe("GET comments", () => {
       .get("/api/articles/0/comments")
       .expect(404)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Article cannot be found");
+        expect(msg).toBe("Article not found");
       });
   });
   test("receive 400 when article_id malformed", () => {
