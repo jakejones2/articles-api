@@ -76,4 +76,9 @@ module.exports = {
       created_at: "2020-10-31T03:03:00.000Z",
     },
   },
+  "DELETE /api/comments/:comment_id": {
+    description: "Deletes a comment based on comment_id in url. Returns a 204.",
+    queries: [],
+    exampleResponse: null,
+  },
 };
