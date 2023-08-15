@@ -9,9 +9,7 @@ function getArticleById(req, res, next) {
     .then((article) => {
       res.status(200).send({ article });
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch(next);
 }
 
 function getArticles(req, res, next) {
@@ -19,9 +17,7 @@ function getArticles(req, res, next) {
     .then((articles) => {
       res.status(200).send({ articles });
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch(next);
 }
 
 function patchArticleById(req, res, next) {
@@ -29,9 +25,7 @@ function patchArticleById(req, res, next) {
     .then((article) => {
       res.status(200).send({ article });
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch(next);
 }
 
 module.exports = { getArticles, getArticleById, patchArticleById };

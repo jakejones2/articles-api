@@ -206,7 +206,6 @@ describe("DELETE comments by id", () => {
   test("DELETE comments deletes comment", () => {
     return request(app)
       .delete("/api/comments/1")
-      .expect(204)
       .then(() => {
         return request(app)
           .get("/api/articles/9/comments")

@@ -10,9 +10,7 @@ function getComments(req, res, next) {
     .then((comments) => {
       return res.status(200).send({ comments });
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch(next);
 }
 
 function createComment(req, res, next) {
@@ -25,20 +23,16 @@ function createComment(req, res, next) {
         .then((comment) => {
           res.status(201).send({ comment });
         })
-        .catch((err) => {
-          next(err);
-        });
+        .catch(next);
     });
 }
 
 function deleteComment(req, res, next) {
   removeComment(req.params.comment_id)
     .then(() => {
-      res.status(204).send();
+      res.sendStatus(204);
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch(next);
 }
 
 module.exports = { getComments, createComment, deleteComment };
