@@ -10,6 +10,7 @@ const { getTopics } = require("./controllers/topics-controller");
 const { getApi } = require("./controllers/api-controller");
 const {
   getArticleById,
+  getArticles,
   patchArticleById,
 } = require("./controllers/articles-controller");
 const { getComments } = require("./controllers/comments-controller");
@@ -18,6 +19,7 @@ module.exports = app;
 
 app.get("/api", getApi);
 app.get("/api/articles/:article_id", getArticleById);
+app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id/comments", getComments);
 app.get("/api/topics", getTopics);
 
