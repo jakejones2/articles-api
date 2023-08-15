@@ -18,11 +18,9 @@ function getArticleById(req, res, next) {
 function getArticles(req, res, next) {
   selectTopics()
     .then((topics) => {
-      return Promise.resolve(
-        topics.map((topic) => {
-          return topic.slug;
-        })
-      );
+      return topics.map((topic) => {
+        return topic.slug;
+      });
     })
     .then((topicList) => {
       const topic = req.query.topic;
