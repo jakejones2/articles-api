@@ -53,6 +53,31 @@ module.exports = {
         "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
     },
   },
+  "POST /api/articles/": {
+    description:
+      "Adds and validates new articles. Default image url created if none offered.",
+    queries: [],
+    examplePostBody: {
+      author: "butter_bridge",
+      title: "important new article",
+      body: "something I really need to share immediately with everyone",
+      topic: "cats",
+      article_img_url:
+        "https://res.cloudinary.com/dk-find-out/image/upload/q_80,w_1920,f_auto/DCTM_Penguin_UK_DK_AL644648_p7nd0z.jpg",
+    },
+    exampleResponse: {
+      article_id: 14,
+      votes: 0,
+      comment_count: 0,
+      author: "butter_bridge",
+      title: "important new article",
+      body: "something I really need to share immediately with everyone",
+      topic: "cats",
+      created_at: "2020-08-03T13:14:00.000Z",
+      article_img_url:
+        "https://res.cloudinary.com/dk-find-out/image/upload/q_80,w_1920,f_auto/DCTM_Penguin_UK_DK_AL644648_p7nd0z.jpg",
+    },
+  },
   "POST /api/articles/:article_id/comments": {
     description:
       "Creates a comment on an individual article based on article_id url parameter. Username must be registerd.",
