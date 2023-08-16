@@ -30,6 +30,21 @@ GET /api
   - `?limit=<num of commments per page>`
   - `?p=<page number>`
 
+#### POST `/api/articles` to add articles:
+
+Example POST body to add a new article:
+
+```
+{
+  author: "butter_bridge",
+  title: "important new article",
+  body: "something I really need to share immediately with everyone",
+  topic: "cats",
+}
+```
+
+Author and topic must already exist in the database.
+
 #### PATCH `/api/articles/:article_id` to increase an article's `votes` property:
 
 Example PATCH body to increase votes by 3:
@@ -50,6 +65,17 @@ Example POST body to add a new comment:
 ```
 
 #### DELETE `/api/comments/:comment_id` to delete comments
+
+#### POST `/api/topics` to add topics:
+
+Example POST body to add a new topic:
+
+```
+{
+    slug: "gardening",
+    description: "growing stuff",
+}
+```
 
 ## Setup
 
