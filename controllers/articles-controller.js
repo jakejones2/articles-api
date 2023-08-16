@@ -1,11 +1,19 @@
 const {
   selectArticleById,
-  selectArticles,
   updateArticleById,
-  validateArticleQueries,
+  insertArticle,
+  selectArticleAndCommentCountById,
+  selectArticles,
 } = require("../models/articles-model");
 
-const { selectTopics } = require("../models/topics-model");
+const {
+  validateArticleQueries,
+  validatePostArticle,
+} = require("../models/validators/article-validators");
+
+const { selectTopic } = require("../models/topics-model");
+
+const { selectUser } = require("../models/users-model");
 
 function getArticleById(req, res, next) {
   selectArticleById(req.params.article_id)
@@ -16,17 +24,13 @@ function getArticleById(req, res, next) {
 }
 
 function getArticles(req, res, next) {
-  selectTopics()
-    .then((topics) => {
-      return topics.map((topic) => {
-        return topic.slug;
-      });
-    })
-    .then((topicList) => {
-      const topic = req.query.topic;
-      const sort_by = req.query.sort_by ? req.query.sort_by : "created_at";
-      const order = req.query.order ? req.query.order.toUpperCase() : "DESC";
-      return validateArticleQueries(topicList, topic, sort_by, order);
+  const promises = [];
+  const topic = req.query.topic;
+  promises.push(validateArticleQueries(req.query));
+  if (topic) promises.push(selectTopic(topic));
+  return Promise.all(promises)
+    .then(() => {
+      return selectArticles(req.query);
     })
     .then((articles) => {
       res.status(200).send({ articles });
@@ -42,4 +46,29 @@ function patchArticleById(req, res, next) {
     .catch(next);
 }
 
-module.exports = { getArticles, getArticleById, patchArticleById };
+function postArticles(req, res, next) {
+  validatePostArticle(req.body)
+    .then(() => {
+      return selectTopic(req.body.topic);
+    })
+    .then(() => {
+      return selectUser(req.body.author);
+    })
+    .then(() => {
+      return insertArticle(req.body);
+    })
+    .then((article_id) => {
+      return selectArticleAndCommentCountById(article_id);
+    })
+    .then((article) => {
+      res.status(201).send({ article });
+    })
+    .catch(next);
+}
+
+module.exports = {
+  getArticles,
+  getArticleById,
+  patchArticleById,
+  postArticles,
+};

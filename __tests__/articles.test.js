@@ -129,7 +129,7 @@ describe("GET articles", () => {
       .get("/api/articles?topic=space")
       .expect(404)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Topic not available");
+        expect(msg).toBe("Topic not found");
       });
   });
   test("should be able to sort by votes", () => {
@@ -360,6 +360,234 @@ describe("PATCH articles/:article_id", () => {
       .expect(400)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("Bad Request");
+      });
+  });
+});
+
+describe("POST /api/articles", () => {
+  test("should respond with 201 given correct body", () => {
+    const testArticle = {
+      author: "butter_bridge",
+      title: "important new article",
+      body: "something I really need to share immediately with everyone",
+      topic: "cats",
+    };
+    return request(app).post("/api/articles").send(testArticle).expect(201);
+  });
+  test("should respond with new article given valid body", () => {
+    const testArticle = {
+      author: "butter_bridge",
+      title: "important new article",
+      body: "something I really need to share immediately with everyone",
+      topic: "cats",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(testArticle)
+      .then(({ body: { article } }) => {
+        expect(article).toMatchObject({
+          article_id: 14,
+          votes: 0,
+          comment_count: 0,
+          author: "butter_bridge",
+          title: "important new article",
+          body: "something I really need to share immediately with everyone",
+          topic: "cats",
+          article_img_url:
+            "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700",
+        });
+        expect(article).toHaveProperty("created_at", expect.any(String));
+        const currentTime = new Date().getTime();
+        const articleTime = new Date(article.created_at).getTime();
+        expect(articleTime / 1000).toBeCloseTo(currentTime / 1000);
+      });
+  });
+  test("should be able to add a new article image url rather than default", () => {
+    const testArticle = {
+      author: "butter_bridge",
+      title: "important new article",
+      body: "something I really need to share immediately with everyone",
+      topic: "cats",
+      article_img_url:
+        "https://res.cloudinary.com/dk-find-out/image/upload/q_80,w_1920,f_auto/DCTM_Penguin_UK_DK_AL644648_p7nd0z.jpg",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(testArticle)
+      .expect(201)
+      .then(({ body: { article } }) => {
+        expect(article).toMatchObject({
+          article_img_url:
+            "https://res.cloudinary.com/dk-find-out/image/upload/q_80,w_1920,f_auto/DCTM_Penguin_UK_DK_AL644648_p7nd0z.jpg",
+        });
+      });
+  });
+  test("superfluous keys ignored", () => {
+    const testArticle = {
+      author: "butter_bridge",
+      fridge: false,
+      title: "important new article",
+      body: "something I really need to share immediately with everyone",
+      topic: "cats",
+      bananas: "yellow",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(testArticle)
+      .expect(201)
+      .then(({ body: { article } }) => {
+        expect(article).toMatchObject({
+          article_id: 14,
+          votes: 0,
+          comment_count: 0,
+          author: "butter_bridge",
+          title: "important new article",
+          body: "something I really need to share immediately with everyone",
+          topic: "cats",
+          article_img_url:
+            "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700",
+        });
+        expect(article).toHaveProperty("created_at", expect.any(String));
+      });
+  });
+  test("should receive a 400 if body is missing", () => {
+    return request(app)
+      .post("/api/articles")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("should recieve a 400 if title is missing", () => {
+    const testArticle = {
+      author: "butter_bridge",
+      body: "something I really need to share immediately with everyone",
+      topic: "cats",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(testArticle)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("should recieve a 400 if author is missing", () => {
+    const testArticle = {
+      title: "important new article",
+      body: "something I really need to share immediately with everyone",
+      topic: "cats",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(testArticle)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("should recieve a 400 if body is missing", () => {
+    const testArticle = {
+      title: "important new article",
+      author: "butter_bridge",
+      topic: "cats",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(testArticle)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("should recieve a 400 if topic is missing", () => {
+    const testArticle = {
+      title: "important new article",
+      body: "something I really need to share immediately with everyone",
+      author: "butter_bridge",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(testArticle)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("should receive a 400 if title is not a string", () => {
+    const testArticle = {
+      author: "butter_bridge",
+      title: true,
+      body: "something I really need to share immediately with everyone",
+      topic: "cats",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(testArticle)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("should receive a 400 if body is not a string", () => {
+    const testArticle = {
+      author: "butter_bridge",
+      title: "test title",
+      body: 5852,
+      topic: "cats",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(testArticle)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("should receive a 404 if topic not in topics", () => {
+    const testArticle = {
+      author: "butter_bridge",
+      title: "test title",
+      body: "some body",
+      topic: "dogs",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(testArticle)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Topic not found");
+      });
+  });
+  test("should receive a 404 if author not in authors", () => {
+    const testArticle = {
+      author: "me_a_new_author!",
+      title: "test title",
+      body: "some body",
+      topic: "cats",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(testArticle)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("User not found");
+      });
+  });
+  test("should receive a 400 if url not valid", () => {
+    const testArticle = {
+      author: "butter_bridge",
+      title: "test title",
+      body: "some body",
+      topic: "cats",
+      article_img_url: "this_couldn't be a url",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(testArticle)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Invalid image url");
       });
   });
 });

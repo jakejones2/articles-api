@@ -12,31 +12,7 @@ function selectArticleById(article_id) {
     });
 }
 
-function validateArticleQueries(topicList, topic, sort_by, order) {
-  const validSortBy = [
-    "article_id",
-    "title",
-    "topic",
-    "author",
-    "body",
-    "created_at",
-    "votes",
-    "comment_count",
-    "article_img_url",
-  ];
-  if (!topicList.includes(topic) && topic) {
-    return Promise.reject({ status: 404, msg: "Topic not available" });
-  } else if (
-    !validSortBy.includes(sort_by) ||
-    !["ASC", "DESC"].includes(order)
-  ) {
-    return Promise.reject({ status: 400, msg: "Bad Request" });
-  } else {
-    return selectArticles(topic, sort_by, order);
-  }
-}
-
-function selectArticles(topic, sort_by, order) {
+function selectArticles({ topic, sort_by = "created_at", order = "DESC" }) {
   let queryString = `
     SELECT       
       articles.author, 
@@ -49,14 +25,32 @@ function selectArticles(topic, sort_by, order) {
       CAST(COUNT(comments.article_id) AS INT) AS comment_count
     FROM articles 
     LEFT OUTER JOIN comments ON articles.article_id = comments.article_id`;
-  if (topic) {
-    queryString += ` WHERE articles.topic = '${topic}'`;
-  }
-  queryString += ` GROUP BY articles.article_id`;
-  queryString += ` ORDER BY ${sort_by}`;
-  queryString += ` ${order.toUpperCase()};`;
+  if (topic) queryString += ` WHERE articles.topic = '${topic}'`;
+  queryString += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order};`;
   return db.query(queryString).then(({ rows }) => {
     return rows;
+  });
+}
+
+function selectArticleAndCommentCountById(article_id) {
+  let queryString = `
+    SELECT       
+      articles.author, 
+      articles.title,
+      articles.body, 
+      articles.article_id,
+      articles.topic,
+      articles.created_at,
+      articles.votes,
+      articles.article_img_url,
+      CAST(COUNT(comments.article_id) AS INT) AS comment_count
+    FROM articles 
+    LEFT OUTER JOIN comments ON articles.article_id = comments.article_id
+    WHERE articles.article_id = $1
+    GROUP BY articles.article_id
+    ORDER BY articles.article_id;`;
+  return db.query(queryString, [article_id]).then(({ rows }) => {
+    return rows[0];
   });
 }
 
@@ -77,9 +71,24 @@ function updateArticleById(article_id, increase) {
     });
 }
 
+function insertArticle(body) {
+  const values = [body.title, body.topic, body.author, body.body, 0];
+  let queryString = `INSERT INTO articles (title, topic, author, body, votes`;
+  if (body.article_img_url) {
+    values.push(body.article_img_url);
+    queryString += `, article_img_url`;
+  }
+  queryString += `) VALUES %L RETURNING article_id;`;
+  const formattedQuery = format(queryString, [values]);
+  return db.query(formattedQuery).then(({ rows }) => {
+    return rows[0].article_id;
+  });
+}
+
 module.exports = {
   selectArticleById,
   updateArticleById,
   selectArticles,
-  validateArticleQueries,
+  insertArticle,
+  selectArticleAndCommentCountById,
 };
