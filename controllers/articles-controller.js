@@ -32,8 +32,8 @@ function getArticles(req, res, next) {
     .then(() => {
       return selectArticles(req.query);
     })
-    .then((articles) => {
-      res.status(200).send({ articles });
+    .then((response) => {
+      res.status(200).send(response);
     })
     .catch(next);
 }

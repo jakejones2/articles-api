@@ -16,7 +16,12 @@ function validatePostArticle(body) {
   return Promise.resolve();
 }
 
-function validateArticleQueries({ sort_by = "created_at", order = "DESC" }) {
+function validateArticleQueries({
+  sort_by = "created_at",
+  order = "DESC",
+  limit = 10,
+  p = 1,
+}) {
   const validSortBy = [
     "article_id",
     "title",
@@ -31,7 +36,11 @@ function validateArticleQueries({ sort_by = "created_at", order = "DESC" }) {
   if (
     !(
       validSortBy.includes(sort_by) &&
-      ["ASC", "DESC"].includes(order.toUpperCase())
+      ["ASC", "DESC"].includes(order.toUpperCase()) &&
+      typeof +limit === "number" &&
+      typeof +p === "number" &&
+      +limit > 0 &&
+      +p > 0
     )
   ) {
     return Promise.reject({ status: 400, msg: "Bad Request" });

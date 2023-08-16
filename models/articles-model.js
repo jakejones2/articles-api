@@ -12,7 +12,13 @@ function selectArticleById(article_id) {
     });
 }
 
-function selectArticles({ topic, sort_by = "created_at", order = "DESC" }) {
+function selectArticles({
+  topic,
+  sort_by = "created_at",
+  order = "DESC",
+  limit = 10,
+  p = 1,
+}) {
   let queryString = `
     SELECT       
       articles.author, 
@@ -22,13 +28,24 @@ function selectArticles({ topic, sort_by = "created_at", order = "DESC" }) {
       articles.created_at,
       articles.votes,
       articles.article_img_url,
+      CAST(COUNT(*) OVER() AS INT) AS total_count,
       CAST(COUNT(comments.article_id) AS INT) AS comment_count
     FROM articles 
     LEFT OUTER JOIN comments ON articles.article_id = comments.article_id`;
   if (topic) queryString += ` WHERE articles.topic = '${topic}'`;
-  queryString += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order};`;
+  queryString += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order}`;
+  queryString += ` LIMIT ${limit} OFFSET ${(p - 1) * limit};`;
   return db.query(queryString).then(({ rows }) => {
-    return rows;
+    if (!rows.length) {
+      return Promise.reject({ status: 404, msg: "Articles not found" });
+    } else {
+      const total_count = rows[0].total_count;
+      const articles = rows.map((row) => {
+        delete row.total_count;
+        return row;
+      });
+      return { articles, total_count };
+    }
   });
 }
 

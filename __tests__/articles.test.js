@@ -79,7 +79,6 @@ describe("GET articles", () => {
       .get("/api/articles")
       .then(({ body: { articles } }) => {
         expect(articles.length > 0).toBe(true);
-        expect(articles.length).toBe(13);
         articles.forEach((article) => {
           expect(article).toHaveProperty("title", expect.any(String));
           expect(article).toHaveProperty("article_id", expect.any(Number));
@@ -242,6 +241,136 @@ describe("GET articles", () => {
   test("if one query is incorrect and others pass, still return 400", () => {
     return request(app)
       .get("/api/articles?topic=cats&sort_by=article_id&order=OVERHERE")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+});
+
+describe("GET /api/articles with pagination", () => {
+  test("should only return 10 articles", () => {
+    return request(app)
+      .get("/api/articles")
+      .then(({ body: { articles } }) => {
+        expect(articles.length).toBe(10);
+      });
+  });
+  test("should only return 8 articles if limit = 8", () => {
+    return request(app)
+      .get("/api/articles?limit=8")
+      .then(({ body: { articles } }) => {
+        expect(articles.length).toBe(8);
+      });
+  });
+  test("should receive 5 articles on page 2 with limit = 8", () => {
+    return request(app)
+      .get("/api/articles?limit=8&p=2")
+      .then(({ body: { articles } }) => {
+        expect(articles.length).toBe(5);
+      });
+  });
+  test("page 2 should have the correct data", () => {
+    return request(app)
+      .get("/api/articles?limit=8&p=2")
+      .then(({ body: { articles } }) => {
+        expect(articles.length).toBe(5);
+        expect(articles[0]).toMatchObject({
+          // sorts by created_at by default
+          article_id: 10,
+          author: "rogersop",
+          created_at: "2020-05-14T04:15:00.000Z",
+          title: "Seven inspirational thought leaders from Manchester UK",
+          topic: "mitch",
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        });
+      });
+  });
+  test("articles should arrive alongside a key of total_count", () => {
+    return request(app)
+      .get("/api/articles?limit=8&p=2")
+      .then(({ body: { total_count } }) => {
+        expect(total_count).toBe(13);
+      });
+  });
+  test("if limit greater than total_count, return total_count", () => {
+    return request(app)
+      .get("/api/articles?limit=15")
+      .then(({ body: { total_count } }) => {
+        expect(total_count).toBe(13);
+      });
+  });
+  test("should work with other queries", () => {
+    return request(app)
+      .get("/api/articles?limit=2&p=2&topic=mitch&sort_by=article_id&order=asc")
+      .then(({ body: { articles, total_count } }) => {
+        expect(total_count).toBe(12);
+        expect(articles.length).toBe(2);
+        expect(articles[0]).toMatchObject({
+          article_id: 3,
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          author: "icellusedkars",
+          comment_count: 2,
+          created_at: "2020-11-03T09:12:00.000Z",
+          title: "Eight pug gifs that remind me of mitch",
+          topic: "mitch",
+          votes: 0,
+        });
+      });
+  });
+  test("if page out of bounds, return 404", () => {
+    return request(app)
+      .get("/api/articles?limit=5&p=5")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Articles not found");
+      });
+  });
+  test("if limit = 0, return 400", () => {
+    return request(app)
+      .get("/api/articles?limit=0")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("if limit < 0, return 400", () => {
+    return request(app)
+      .get("/api/articles?limit=-3")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("if page = 0, return 400", () => {
+    return request(app)
+      .get("/api/articles?limit=0&p=0")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("if page < 0, return 400", () => {
+    return request(app)
+      .get("/api/articles?limit=0&p=-6")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("if limit not a number, return 400", () => {
+    return request(app)
+      .get("/api/articles?limit=fish")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("if page not a number, return 400", () => {
+    return request(app)
+      .get("/api/articles?limit=3&p=banana")
       .expect(400)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("Bad Request");
