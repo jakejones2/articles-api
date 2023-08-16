@@ -5,11 +5,17 @@ const {
   updateComment,
 } = require("../models/comments-model");
 const { selectUsernames } = require("../models/users-model");
+const {
+  validatePaginationQueries,
+} = require("../models/validators/article-validators");
 
 function getComments(req, res, next) {
-  selectComments(req.params.article_id)
-    .then((comments) => {
-      return res.status(200).send({ comments });
+  validatePaginationQueries(req.query)
+    .then(() => {
+      return selectComments(req.params.article_id, req.query);
+    })
+    .then((response) => {
+      return res.status(200).send(response);
     })
     .catch(next);
 }

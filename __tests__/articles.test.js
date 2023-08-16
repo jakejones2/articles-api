@@ -287,25 +287,25 @@ describe("GET /api/articles with pagination", () => {
         });
       });
   });
-  test("articles should arrive alongside a key of total_count", () => {
+  test("articles should arrive alongside a key of totalCount", () => {
     return request(app)
       .get("/api/articles?limit=8&p=2")
-      .then(({ body: { total_count } }) => {
-        expect(total_count).toBe(13);
+      .then(({ body: { totalCount } }) => {
+        expect(totalCount).toBe(13);
       });
   });
-  test("if limit greater than total_count, return total_count", () => {
+  test("if limit greater than totalCount, return totalCount", () => {
     return request(app)
       .get("/api/articles?limit=15")
-      .then(({ body: { total_count } }) => {
-        expect(total_count).toBe(13);
+      .then(({ body: { totalCount } }) => {
+        expect(totalCount).toBe(13);
       });
   });
   test("should work with other queries", () => {
     return request(app)
       .get("/api/articles?limit=2&p=2&topic=mitch&sort_by=article_id&order=asc")
-      .then(({ body: { articles, total_count } }) => {
-        expect(total_count).toBe(12);
+      .then(({ body: { articles, totalCount } }) => {
+        expect(totalCount).toBe(12);
         expect(articles.length).toBe(2);
         expect(articles[0]).toMatchObject({
           article_id: 3,
@@ -346,7 +346,7 @@ describe("GET /api/articles with pagination", () => {
   });
   test("if page = 0, return 400", () => {
     return request(app)
-      .get("/api/articles?limit=0&p=0")
+      .get("/api/articles?limit=3&p=0")
       .expect(400)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("Bad Request");
@@ -354,7 +354,7 @@ describe("GET /api/articles with pagination", () => {
   });
   test("if page < 0, return 400", () => {
     return request(app)
-      .get("/api/articles?limit=0&p=-6")
+      .get("/api/articles?limit=3&p=-6")
       .expect(400)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("Bad Request");

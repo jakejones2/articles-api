@@ -1,14 +1,30 @@
 const db = require("../db/connection");
 const format = require("pg-format");
 
-function selectComments(article_id) {
+function selectComments(article_id, { limit = 10, p = 1 }) {
   return db
-    .query("SELECT * FROM comments WHERE article_id = $1", [article_id])
+    .query(
+      `SELECT 
+        *, 
+        CAST(COUNT(*) OVER() AS  INT) AS total_count 
+      FROM comments 
+      WHERE article_id = $1
+      ORDER BY comment_id ASC 
+      LIMIT $2 
+      OFFSET $3`,
+      [article_id, limit, (p - 1) * limit]
+    )
     .then(({ rows }) => {
       if (!rows.length) {
-        return Promise.reject({ status: 404, msg: "Article not found" });
+        return Promise.reject({ status: 404, msg: "No comments found" });
+      } else {
+        const totalCount = rows[0].total_count;
+        const comments = rows.map((row) => {
+          delete row.total_count;
+          return row;
+        });
+        return { comments, totalCount };
       }
-      return rows;
     });
 }
 

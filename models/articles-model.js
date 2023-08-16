@@ -39,12 +39,12 @@ function selectArticles({
     if (!rows.length) {
       return Promise.reject({ status: 404, msg: "Articles not found" });
     } else {
-      const total_count = rows[0].total_count;
+      const totalCount = rows[0].total_count;
       const articles = rows.map((row) => {
         delete row.total_count;
         return row;
       });
-      return { articles, total_count };
+      return { articles, totalCount };
     }
   });
 }

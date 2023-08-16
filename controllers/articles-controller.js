@@ -9,6 +9,7 @@ const {
 const {
   validateArticleQueries,
   validatePostArticle,
+  validatePaginationQueries,
 } = require("../models/validators/article-validators");
 
 const { selectTopic } = require("../models/topics-model");
@@ -25,8 +26,9 @@ function getArticleById(req, res, next) {
 
 function getArticles(req, res, next) {
   const promises = [];
-  const topic = req.query.topic;
   promises.push(validateArticleQueries(req.query));
+  promises.push(validatePaginationQueries(req.query));
+  const topic = req.query.topic;
   if (topic) promises.push(selectTopic(topic));
   return Promise.all(promises)
     .then(() => {

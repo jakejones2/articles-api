@@ -22,7 +22,6 @@ describe("GET comments", () => {
       .expect(200)
       .then(({ body: { comments } }) => {
         expect(comments.length > 0).toBe(true);
-        expect(comments.length).toBe(11);
         expect(comments[0]).toMatchObject({
           comment_id: 2,
           body: "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
@@ -38,12 +37,116 @@ describe("GET comments", () => {
       .get("/api/articles/0/comments")
       .expect(404)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Article not found");
+        expect(msg).toBe("No comments found");
       });
   });
   test("receive 400 when article_id malformed", () => {
     return request(app)
       .get("/api/articles/frog/comments")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("comments page length should default to 10", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments.length).toBe(10);
+      });
+  });
+  test("comments page length can be set in query", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=6")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments.length).toBe(6);
+      });
+  });
+  test("response includes a total_count key with number of comments", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body: { totalCount } }) => {
+        expect(totalCount).toBe(11);
+      });
+  });
+  test("second page has correct comments (sorted by id by default)", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=3&p=2")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments[0]).toMatchObject({
+          // comment_id 1 has article_id 9
+          comment_id: 5,
+          body: "I hate streaming noses",
+          votes: 0,
+          author: "icellusedkars",
+          article_id: 1,
+          created_at: "2020-11-03T21:00:00.000Z",
+        });
+      });
+  });
+  test("if limit higher than total, return all", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=44")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments.length).toBe(11);
+      });
+  });
+  test("if page out of bounds, return 404", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=5&p=5")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("No comments found");
+      });
+  });
+  test("if limit = 0, return 400", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=0")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("if limit < 0, return 400", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=-3")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("if page = 0, return 400", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=3&p=0")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("if page < 0, return 400", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=3&p=-6")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("if limit not a number, return 400", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=fish")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("if page not a number, return 400", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=3&p=banana")
       .expect(400)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("Bad Request");
