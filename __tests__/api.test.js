@@ -27,8 +27,9 @@ describe("/api", () => {
             "serves up a json representation of all the available endpoints of the api",
         });
         expect(body["GET /api/articles"]).toMatchObject({
-          description: "serves an array of all articles",
-          queries: ["author", "topic", "sort_by", "order"],
+          description:
+            "serves an array of all articles, with pagination in 10s by default.",
+          queries: ["topic", "sort_by", "order", "limit", "p"],
           exampleResponse: {
             articles: [
               {

@@ -23,6 +23,8 @@ GET /api
   - `?sort_by=<column name>`
   - `?topic=<topic slug>`
   - `?order=<asc/desc>`
+  - `?limit=<num of articles per page>`
+  - `?p=<page number>`
 - `/api/articles/:article_id`
 - `/api/articles/:article_id/comments`
 
@@ -99,6 +101,6 @@ After creating two .env files for development and testing, run the following com
 
 To run all tests, enter `npm test` into the command line. Tests are held in the `__tests__` directory.<br><br>Be aware that jest runs tests **concurrently** by default. This will lead to errors if not handled, as each test requires uninterrupted contact with the test db. If you intend to run tests directly with jest include the `--runInBand` flag.<br><br>**Husky** is installed by default to check that all tests pass before git commits. To change this behaviour, alter the `pre-commit` file in `.husky`.
 
-### 7 - start server
+### 7 - Start a local server
 
-To start the server, enter `node listen.js` into the command line from the top-level directory. You should see a message saying 'Listening on port 9090'. This port can be changed by altering the `port` variable in `listen.js`.
+To start a local server, enter `node listen.js` into the command line from the top-level directory. You should see a message saying 'Listening on port 9090'. This port can be changed by altering the `port` variable in `listen.js`.

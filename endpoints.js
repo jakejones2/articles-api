@@ -4,9 +4,11 @@ module.exports = {
       "serves up a json representation of all the available endpoints of the api",
   },
   "GET /api/articles": {
-    description: "serves an array of all articles",
-    queries: ["author", "topic", "sort_by", "order"],
+    description:
+      "serves an array of all articles, with pagination in 10s by default.",
+    queries: ["topic", "sort_by", "order", "limit", "p"],
     exampleResponse: {
+      total_count: 13,
       articles: [
         {
           title: "Seafood substitutions are increasing",
