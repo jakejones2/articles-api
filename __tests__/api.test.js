@@ -13,7 +13,7 @@ beforeEach(() => {
   return seed(data);
 });
 
-describe("/api", () => {
+describe("GET /api", () => {
   test("GET 200 from /api", () => {
     return request(app).get("/api").expect(200);
   });
@@ -63,8 +63,8 @@ describe("/api", () => {
   });
 });
 
-describe("bad path", () => {
-  test("bad paths should receive 404", () => {
+describe("GET /api error handling", () => {
+  test("non-existent paths should receive 404", () => {
     return request(app)
       .get("/api/dogs")
       .expect(404)

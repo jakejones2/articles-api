@@ -12,7 +12,7 @@ beforeEach(() => {
   return seed(data);
 });
 
-describe("/api/users", () => {
+describe("GET /api/users", () => {
   test("GET 200 from /api/users", () => {
     return request(app).get("/api/users").expect(200);
   });
@@ -31,7 +31,7 @@ describe("/api/users", () => {
   });
 });
 
-describe("api/users/:username", () => {
+describe("GET api/users/:username", () => {
   test("should return a 200 when passed valid username", () => {
     return request(app).get("/api/users/rogersop").expect(200);
   });

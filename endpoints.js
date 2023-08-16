@@ -82,18 +82,21 @@ module.exports = {
   },
   "POST /api/articles/:article_id/comments": {
     description:
-      "Creates a comment on an individual article based on article_id url parameter. Username must be registerd.",
-    queries: [],
+      "Creates a comment on an individual article based on article_id url parameter. Username must be registered. Paginated in 10s by default.",
+    queries: ["limit", "p"],
     examplePostBody: {
       username: "butter_bridge",
       body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
     },
     exampleResponse: {
-      author: "butter_bridge",
-      body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
-      article_id: 1,
-      votes: 0,
-      created_at: "2020-10-31T03:03:00.000Z",
+      total_count: 11,
+      comments: {
+        author: "butter_bridge",
+        body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+        article_id: 1,
+        votes: 0,
+        created_at: "2020-10-31T03:03:00.000Z",
+      },
     },
   },
   "DELETE /api/comments/:comment_id": {

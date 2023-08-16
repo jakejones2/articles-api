@@ -27,6 +27,8 @@ GET /api
   - `?p=<page number>`
 - `/api/articles/:article_id`
 - `/api/articles/:article_id/comments`
+  - `?limit=<num of commments per page>`
+  - `?p=<page number>`
 
 #### PATCH `/api/articles/:article_id` to increase an article's `votes` property:
 

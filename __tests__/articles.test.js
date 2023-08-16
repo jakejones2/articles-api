@@ -114,6 +114,8 @@ describe("GET articles", () => {
         expect(articles).toBeSortedBy("created_at", { descending: true });
       });
   });
+});
+describe("GET /api/articles query topic", () => {
   test("Should accept the query topic", () => {
     return request(app)
       .get("/api/articles?topic=mitch")
@@ -131,6 +133,9 @@ describe("GET articles", () => {
         expect(msg).toBe("Topic not found");
       });
   });
+});
+
+describe("GET /api/articles query sort_by", () => {
   test("should be able to sort by votes", () => {
     return request(app)
       .get("/api/articles?sort_by=votes")
@@ -195,14 +200,9 @@ describe("GET articles", () => {
         expect(articles).toBeSortedBy("article_img_url", { descending: true });
       });
   });
-  test("invalid sort_by query returns 400", () => {
-    return request(app)
-      .get("/api/articles?sort_by=pancakes")
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
-      });
-  });
+});
+
+describe("GET /api/articles query order", () => {
   test("should be able to add query order=asc", () => {
     return request(app)
       .get("/api/articles?order=asc")
@@ -219,14 +219,6 @@ describe("GET articles", () => {
         expect(articles).toBeSortedBy("created_at", { descending: true });
       });
   });
-  test("should return 400 if order is not asc or desc", () => {
-    return request(app)
-      .get("/api/articles?order=desc;+DROP+TABLE+IF+EXISTS+articles;")
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
-      });
-  });
   test("all queries should work together", () => {
     return request(app)
       .get("/api/articles?topic=cats&sort_by=article_id&order=asc")
@@ -236,6 +228,25 @@ describe("GET articles", () => {
         articles.forEach((article) => {
           expect(article.topic).toBe("cats");
         });
+      });
+  });
+});
+
+describe("GET /api/articles query error handling", () => {
+  test("invalid sort_by query returns 400", () => {
+    return request(app)
+      .get("/api/articles?sort_by=pancakes")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("should return 400 if order is not asc or desc", () => {
+    return request(app)
+      .get("/api/articles?order=desc;+DROP+TABLE+IF+EXISTS+articles;")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
       });
   });
   test("if one query is incorrect and others pass, still return 400", () => {
@@ -320,6 +331,9 @@ describe("GET /api/articles with pagination", () => {
         });
       });
   });
+});
+
+describe("GET /api/articles pagination error handling", () => {
   test("if page out of bounds, return 404", () => {
     return request(app)
       .get("/api/articles?limit=5&p=5")
@@ -378,7 +392,7 @@ describe("GET /api/articles with pagination", () => {
   });
 });
 
-describe("PATCH articles/:article_id", () => {
+describe("PATCH api/articles/:article_id", () => {
   test("PATCH 200 from /api/articles/:article_id", () => {
     const examplePatch = { inc_votes: 1 };
     return request(app).patch("/api/articles/1").send(examplePatch).expect(200);
@@ -443,6 +457,8 @@ describe("PATCH articles/:article_id", () => {
         });
       });
   });
+});
+describe("PATCH /api/articles/:article_id error handling", () => {
   test("Returns 400 if patch body has incorrect syntax", () => {
     const examplePatch = { votes: -1000 };
     return request(app)
@@ -579,6 +595,8 @@ describe("POST /api/articles", () => {
         expect(article).toHaveProperty("created_at", expect.any(String));
       });
   });
+});
+describe("POST /api/articles error handling", () => {
   test("should receive a 400 if body is missing", () => {
     return request(app)
       .post("/api/articles")

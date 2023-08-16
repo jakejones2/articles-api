@@ -12,7 +12,7 @@ beforeEach(() => {
   return seed(data);
 });
 
-describe("GET comments", () => {
+describe("GET /api/articles/:article_id/comments", () => {
   test("GET 200 from /api/articles/:article_id/comments ", () => {
     return request(app).get("/api/articles/1/comments").expect(200);
   });
@@ -32,6 +32,8 @@ describe("GET comments", () => {
         });
       });
   });
+});
+describe("GET /api/articles/:article_id/comments error handling", () => {
   test("receive 404 when article_id out of range", () => {
     return request(app)
       .get("/api/articles/0/comments")
@@ -48,6 +50,8 @@ describe("GET comments", () => {
         expect(msg).toBe("Bad Request");
       });
   });
+});
+describe("GET /api/articles/:article_id/comments pagination", () => {
   test("comments page length should default to 10", () => {
     return request(app)
       .get("/api/articles/1/comments")
@@ -96,6 +100,8 @@ describe("GET comments", () => {
         expect(comments.length).toBe(11);
       });
   });
+});
+describe("GET /api/articles/:article_id/comments pagination error handling", () => {
   test("if page out of bounds, return 404", () => {
     return request(app)
       .get("/api/articles/1/comments?limit=5&p=5")
@@ -154,7 +160,7 @@ describe("GET comments", () => {
   });
 });
 
-describe("POST comments", () => {
+describe("POST /api/articles/:article_id/comments", () => {
   test("receive 201 when POST /api/articles/:article_id/comments ", () => {
     const testComment = {
       username: "butter_bridge",
@@ -214,6 +220,8 @@ describe("POST comments", () => {
         expect(comment).not.toHaveProperty("favouriteFruit");
       });
   });
+});
+describe("POST api/articles/:article_id/comments error handling", () => {
   test("receive 404 if username not in users table", () => {
     const testComment = {
       username: "bob",
@@ -302,7 +310,7 @@ describe("POST comments", () => {
   });
 });
 
-describe("DELETE comments by id", () => {
+describe("DELETE /api/comments/:comment_id", () => {
   test("DELETE 204 from /api/comments/:comment_id", () => {
     return request(app).delete("/api/comments/1").expect(204);
   });
@@ -319,6 +327,8 @@ describe("DELETE comments by id", () => {
           });
       });
   });
+});
+describe("DELETE /api/comments/:comment_id error handling", () => {
   test("Returns 404 if comment not found", () => {
     return request(app)
       .delete("/api/comments/1000")
@@ -387,6 +397,24 @@ describe("PATCH /api/comments/:comment_id", () => {
         });
       });
   });
+  test("returns 200 if extra keys in body", () => {
+    const testBody = { inc_votes: 1, bananas: true };
+    return request(app)
+      .patch("/api/comments/1")
+      .send(testBody)
+      .expect(200)
+      .then(({ body: { comment } }) => {
+        expect(comment).toMatchObject({
+          body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+          votes: 17,
+          author: "butter_bridge",
+          article_id: 9,
+          created_at: "2020-04-06T12:17:00.000Z",
+        });
+      });
+  });
+});
+describe("PATCH /api/comments/:comment_id error handling", () => {
   test("returns 404 if comment cannot be found", () => {
     const testBody = { inc_votes: 30 };
     return request(app)
@@ -443,22 +471,6 @@ describe("PATCH /api/comments/:comment_id", () => {
       .expect(400)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("Bad request");
-      });
-  });
-  test("returns 200 if extra keys in body", () => {
-    const testBody = { inc_votes: 1, bananas: true };
-    return request(app)
-      .patch("/api/comments/1")
-      .send(testBody)
-      .expect(200)
-      .then(({ body: { comment } }) => {
-        expect(comment).toMatchObject({
-          body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
-          votes: 17,
-          author: "butter_bridge",
-          article_id: 9,
-          created_at: "2020-04-06T12:17:00.000Z",
-        });
       });
   });
 });
