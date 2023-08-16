@@ -13,7 +13,7 @@ function getComments(req, res, next) {
     .catch(next);
 }
 
-function createComment(req, res, next) {
+function postComment(req, res, next) {
   selectUsernames()
     .then((rows) => {
       return rows.map((row) => row.username);
@@ -35,4 +35,4 @@ function deleteComment(req, res, next) {
     .catch(next);
 }
 
-module.exports = { getComments, createComment, deleteComment };
+module.exports = { getComments, postComment, deleteComment };

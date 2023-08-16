@@ -1,45 +1,17 @@
 const express = require("express");
-const app = express();
-
+const notFound = require("./controllers/not-found");
+const apiRouter = require("./routes/api-router");
 const {
   finalErrorHandler,
   customErrorHandler,
   psqlErrorHandler,
 } = require("./controllers/error-handlers");
-const notFound = require("./controllers/not-found");
-const { getTopics } = require("./controllers/topics-controller");
-const { getApi } = require("./controllers/api-controller");
-const {
-  getArticleById,
-  getArticles,
-  patchArticleById,
-} = require("./controllers/articles-controller");
-const {
-  getComments,
-  createComment,
-  deleteComment,
-} = require("./controllers/comments-controller");
-const { getUsers } = require("./controllers/user-controller");
 
-app.get("/api", getApi);
-app.get("/api/articles/:article_id", getArticleById);
-app.get("/api/articles", getArticles);
-app.get("/api/articles/:article_id/comments", getComments);
-app.get("/api/topics", getTopics);
-app.get("/api/users", getUsers);
-
-app.delete("/api/comments/:comment_id", deleteComment);
+const app = express();
 
 app.use(express.json());
-
-app.patch("/api/articles/:article_id", patchArticleById);
-
-app.use(express.json());
-
-app.post("/api/articles/:article_id/comments", createComment);
-
+app.use("/api", apiRouter);
 app.use(notFound);
-
 app.use(psqlErrorHandler);
 app.use(customErrorHandler);
 app.use(finalErrorHandler);
