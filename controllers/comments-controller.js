@@ -2,6 +2,7 @@ const {
   selectComments,
   insertComment,
   removeComment,
+  updateComment,
 } = require("../models/comments-model");
 const { selectUsernames } = require("../models/users-model");
 
@@ -35,4 +36,18 @@ function deleteComment(req, res, next) {
     .catch(next);
 }
 
-module.exports = { getComments, postComment, deleteComment };
+function patchComment(req, res, next) {
+  updateComment(req.body.inc_votes, req.params.comment_id)
+    .then((comment) => {
+      res.status(200).send({ comment });
+    })
+    .catch(next);
+}
+
+module.exports = {
+  getComments,
+  postComment,
+  deleteComment,
+  patchComment,
+  updateComment,
+};

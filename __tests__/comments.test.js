@@ -233,3 +233,129 @@ describe("DELETE comments by id", () => {
       });
   });
 });
+
+describe("PATCH /api/comments/:comment_id", () => {
+  test("responds with 200 when given valid body", () => {
+    const testBody = { inc_votes: 1 };
+    return request(app).patch("/api/comments/1").send(testBody).expect(200);
+  });
+  test("responds with updated comment when given valid body", () => {
+    const testBody = { inc_votes: 1 };
+    return request(app)
+      .patch("/api/comments/1")
+      .send(testBody)
+      .then(({ body: { comment } }) => {
+        expect(comment).toMatchObject({
+          body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+          votes: 17,
+          author: "butter_bridge",
+          article_id: 9,
+          created_at: "2020-04-06T12:17:00.000Z",
+        });
+      });
+  });
+  test("can decrement votes", () => {
+    const testBody = { inc_votes: -1 };
+    return request(app)
+      .patch("/api/comments/1")
+      .send(testBody)
+      .then(({ body: { comment } }) => {
+        expect(comment).toMatchObject({
+          body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+          votes: 15,
+          author: "butter_bridge",
+          article_id: 9,
+          created_at: "2020-04-06T12:17:00.000Z",
+        });
+      });
+  });
+  test("can increment votes more than one", () => {
+    const testBody = { inc_votes: 30 };
+    return request(app)
+      .patch("/api/comments/1")
+      .send(testBody)
+      .then(({ body: { comment } }) => {
+        expect(comment).toMatchObject({
+          body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+          votes: 46,
+          author: "butter_bridge",
+          article_id: 9,
+          created_at: "2020-04-06T12:17:00.000Z",
+        });
+      });
+  });
+  test("returns 404 if comment cannot be found", () => {
+    const testBody = { inc_votes: 30 };
+    return request(app)
+      .patch("/api/comments/900000")
+      .send(testBody)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Comment not found");
+      });
+  });
+  test("returns 400 if body missing", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad request");
+      });
+  });
+  test("returns 400 if body has incorrect key", () => {
+    const testBody = { bananas: 30 };
+    return request(app)
+      .patch("/api/comments/1")
+      .send(testBody)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad request");
+      });
+  });
+  test("returns 400 ifnpm  increase not a number", () => {
+    const testBody = { inc_votes: "bananas" };
+    return request(app)
+      .patch("/api/comments/1")
+      .send(testBody)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad request");
+      });
+  });
+  test("returns 400 if body malformed", () => {
+    const testBody = "bananas";
+    return request(app)
+      .patch("/api/comments/1")
+      .send(testBody)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad request");
+      });
+  });
+  test("returns 400 if body malformed and comment cannot be found", () => {
+    const testBody = "bananas";
+    return request(app)
+      .patch("/api/comments/90000")
+      .send(testBody)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad request");
+      });
+  });
+  test("returns 200 if extra keys in body", () => {
+    const testBody = { inc_votes: 1, bananas: true };
+    return request(app)
+      .patch("/api/comments/1")
+      .send(testBody)
+      .expect(200)
+      .then(({ body: { comment } }) => {
+        expect(comment).toMatchObject({
+          body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+          votes: 17,
+          author: "butter_bridge",
+          article_id: 9,
+          created_at: "2020-04-06T12:17:00.000Z",
+        });
+      });
+  });
+});
