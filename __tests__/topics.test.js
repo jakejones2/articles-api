@@ -41,3 +41,114 @@ describe("GET /api/topics", () => {
       });
   });
 });
+
+describe("POST /api/topics", () => {
+  test("should receive 201 when passed correct body", () => {
+    const postBody = {
+      slug: "gardening",
+      description: "growing stuff",
+    };
+    return request(app).post("/api/topics").send(postBody).expect(201);
+  });
+  test("should return the new topic", () => {
+    const postBody = {
+      slug: "gardening",
+      description: "growing stuff",
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(postBody)
+      .then(({ body: { topic } }) => {
+        expect(topic).toMatchObject({
+          ...postBody,
+        });
+      });
+  });
+  test("should return 201 if extra keys are provided", () => {
+    const postBody = {
+      slug: "gardening",
+      description: "growing stuff",
+      moreinfo: "can I add this?",
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(postBody)
+      .then(({ body: { topic } }) => {
+        expect(topic).toMatchObject({
+          slug: "gardening",
+          description: "growing stuff",
+        });
+      });
+  });
+});
+
+describe("POST /api/topics error handling", () => {
+  test("should respond with 400 if body missing", () => {
+    return request(app)
+      .post("/api/topics")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("should respond with 400 if slug key missing", () => {
+    const postBody = {
+      description: "growing stuff",
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(postBody)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("should respond with 400 if description key missing", () => {
+    const postBody = {
+      slug: "gardening",
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(postBody)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("should respond with 400 if slug not a string", () => {
+    const postBody = {
+      description: "growing stuff",
+      slug: 1245,
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(postBody)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("should respond with 400 if description not a string", () => {
+    const postBody = {
+      description: true,
+      slug: "gardening",
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(postBody)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("should return 400 if body malformed", () => {
+    const postBody = "big string";
+    return request(app)
+      .post("/api/topics")
+      .send(postBody)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+});

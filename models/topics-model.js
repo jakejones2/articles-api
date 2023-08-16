@@ -18,4 +18,15 @@ function selectTopic(topic) {
     });
 }
 
-module.exports = { selectTopics, selectTopic };
+function insertTopic(topic) {
+  const queryString = format(
+    `
+    INSERT INTO topics (slug, description) VALUES %L RETURNING *`,
+    [[topic.slug, topic.description]]
+  );
+  return db.query(queryString).then(({ rows }) => {
+    return rows[0];
+  });
+}
+
+module.exports = { selectTopics, selectTopic, insertTopic };

@@ -1,6 +1,7 @@
-const { selectTopics } = require("../models/topics-model");
+const { selectTopics, insertTopic } = require("../models/topics-model");
+const { validateTopic } = require("../models/validators/topic-validators");
 
-function getTopics(req, res, next) {
+function getTopics(_, res, next) {
   selectTopics()
     .then((topics) => {
       res.status(200).send({ topics });
@@ -8,4 +9,15 @@ function getTopics(req, res, next) {
     .catch(next);
 }
 
-module.exports = { getTopics };
+function postTopic(req, res, next) {
+  validateTopic(req.body)
+    .then(() => {
+      return insertTopic(req.body);
+    })
+    .then((topic) => {
+      res.status(201).send({ topic });
+    })
+    .catch(next);
+}
+
+module.exports = { getTopics, postTopic };
