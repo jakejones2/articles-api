@@ -74,6 +74,17 @@ module.exports = {
     queries: [],
     exampleResponse: null,
   },
+  "PATCH /api/comments/:comment_id": {
+    description: "Updates the votes on a comment based on comment_id in url.",
+    queries: [],
+    exampleResponse: {
+      body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+      votes: 17,
+      author: "butter_bridge",
+      article_id: 9,
+      created_at: "2020-04-06T12:17:00.000Z",
+    },
+  },
   "GET /api/topics": {
     description: "serves an array of all topics",
     queries: [],
