@@ -3,13 +3,6 @@ module.exports = {
     description:
       "serves up a json representation of all the available endpoints of the api",
   },
-  "GET /api/topics": {
-    description: "serves an array of all topics",
-    queries: [],
-    exampleResponse: {
-      topics: [{ slug: "football", description: "Footie!" }],
-    },
-  },
   "GET /api/articles": {
     description: "serves an array of all articles",
     queries: ["author", "topic", "sort_by", "order"],
@@ -76,6 +69,18 @@ module.exports = {
       created_at: "2020-10-31T03:03:00.000Z",
     },
   },
+  "DELETE /api/comments/:comment_id": {
+    description: "Deletes a comment based on comment_id in url. Returns a 204.",
+    queries: [],
+    exampleResponse: null,
+  },
+  "GET /api/topics": {
+    description: "serves an array of all topics",
+    queries: [],
+    exampleResponse: {
+      topics: [{ slug: "football", description: "Footie!" }],
+    },
+  },
   "GET /api/users": {
     description: "Retreives all users as an array of objects",
     queries: [],
@@ -88,9 +93,14 @@ module.exports = {
       },
     ],
   },
-  "DELETE /api/comments/:comment_id": {
-    description: "Deletes a comment based on comment_id in url. Returns a 204.",
+  "GET /api/users/:username": {
+    description: "Retrieves a user based on username in url.",
     queries: [],
-    exampleResponse: null,
+    exampleResponse: {
+      username: "butter_bridge",
+      name: "jonny",
+      avatar_url:
+        "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+    },
   },
 };
