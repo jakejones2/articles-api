@@ -29,12 +29,11 @@ describe("GET /api/users", () => {
         });
       });
   });
-  test("user information does not include password_hash nor salt", () => {
+  test("user information does not include password_hash", () => {
     return request(app)
       .get("/api/users")
       .then(({ body: { users } }) => {
         expect(users[0]).not.toHaveProperty("password_hash");
-        expect(users[0]).not.toHaveProperty("salt");
       });
   });
 });
@@ -55,12 +54,11 @@ describe("GET api/users/:username", () => {
         });
       });
   });
-  test("niether user password_hash nor salt should be visible", () => {
+  test("password_hash should not be sent", () => {
     return request(app)
       .get("/api/users/butter_bridge")
       .then(({ body: { user } }) => {
         expect(user).not.toHaveProperty("password_hash");
-        expect(user).not.toHaveProperty("salt");
       });
   });
   test("should return a 404 if user not found", () => {
@@ -72,3 +70,26 @@ describe("GET api/users/:username", () => {
       });
   });
 });
+
+describe("POST /register", () => {
+  test("should return 201 if username does not already exist", () => {
+    const postBody = {
+      username: "bob",
+      name: "boris",
+      avatar_url: "https://avatars2.githubusercontent.com/u/24604688?s=460&v=4",
+      password: "myCrazy44P@ssword",
+    };
+    return request(app).post("/register").send(postBody).expect(201);
+  });
+  test("should return 409 if username already exists", () => {
+    const postBody = {
+      username: "butter_bridge",
+      name: "boris",
+      avatar_url: "https://avatars2.githubusercontent.com/u/24604688?s=460&v=4",
+      password: "myCrazy44P@ssword",
+    };
+    return request(app).post("/register").send(postBody).expect(409);
+  });
+});
+// need to test the rest of the POST body - validate fields etc. even image url eventually.
+// validate password on front end?
