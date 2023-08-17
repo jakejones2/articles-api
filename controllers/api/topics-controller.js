@@ -1,5 +1,5 @@
-const { selectTopics, insertTopic } = require("../models/topics-model");
-const { validateTopic } = require("../models/validators/topic-validators");
+const { selectTopics, insertTopic } = require("../../models/topics-model");
+const { validateTopic } = require("../../models/validators/topic-validators");
 
 function getTopics(_, res, next) {
   selectTopics()

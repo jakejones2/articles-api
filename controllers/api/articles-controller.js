@@ -5,17 +5,17 @@ const {
   selectArticleAndCommentCountById,
   selectArticles,
   removeArticle,
-} = require("../models/articles-model");
+} = require("../../models/articles-model");
 
 const {
   validateArticleQueries,
   validatePostArticle,
   validatePaginationQueries,
-} = require("../models/validators/article-validators");
+} = require("../../models/validators/article-validators");
 
-const { selectTopic } = require("../models/topics-model");
+const { selectTopic } = require("../../models/topics-model");
 
-const { selectUser } = require("../models/users-model");
+const { selectUser } = require("../../models/users-model");
 
 function getArticleById(req, res, next) {
   selectArticleById(req.params.article_id)

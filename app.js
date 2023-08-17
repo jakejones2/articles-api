@@ -2,7 +2,7 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 
 //controllers
-const notFound = require("./controllers/not-found");
+const notFound = require("./middleware/not-found");
 const {
   finalErrorHandler,
   customErrorHandler,

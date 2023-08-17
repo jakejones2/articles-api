@@ -2,7 +2,7 @@ const {
   selectUsers,
   selectUser,
   insertUser,
-} = require("../models/users-model");
+} = require("../../models/users-model");
 
 function getUsers(_, res, next) {
   selectUsers()

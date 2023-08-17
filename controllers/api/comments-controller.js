@@ -3,11 +3,11 @@ const {
   insertComment,
   removeComment,
   updateComment,
-} = require("../models/comments-model");
-const { selectUsernames } = require("../models/users-model");
+} = require("../../models/comments-model");
+const { selectUsernames } = require("../../models/users-model");
 const {
   validatePaginationQueries,
-} = require("../models/validators/article-validators");
+} = require("../../models/validators/article-validators");
 
 function getComments(req, res, next) {
   validatePaginationQueries(req.query)
