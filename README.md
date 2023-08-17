@@ -53,6 +53,8 @@ Example PATCH body to increase votes by 3:
 { inc_votes: 3 }
 ```
 
+#### DELETE `/api/articles/:article_id` to delete an article (responds with 204).
+
 #### POST `/api/articles/:article_id/comments` to add comments:
 
 Example POST body to add a new comment:

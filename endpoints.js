@@ -84,6 +84,11 @@ module.exports = {
       },
     },
   },
+  "DELETE /api/articles:article_id": {
+    description: "deletes article at given id, returns 204 no content",
+    queries: [],
+    exampleResponse: null,
+  },
   "POST /api/articles/:article_id/comments": {
     description:
       "Creates a comment on an individual article based on article_id url parameter. Username must be registered.",
