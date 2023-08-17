@@ -8,7 +8,7 @@ module.exports = {
       "serves an array of all articles, with pagination in 10s by default.",
     queries: ["topic", "sort_by", "order", "limit", "p"],
     exampleResponse: {
-      total_count: 13,
+      total_count: 1,
       articles: [
         {
           title: "Seafood substitutions are increasing",
@@ -28,10 +28,12 @@ module.exports = {
     queries: [],
     exampleResponse: {
       article: {
+        article_id: 5,
         title: "Z",
         topic: "mitch",
         author: "icellusedkars",
         body: "I was hungry.",
+        comment_count: 11,
         created_at: "2020-01-07T14:08:00.000Z",
         article_img_url:
           "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
@@ -113,15 +115,18 @@ module.exports = {
     queries: ["limit", "p"],
     exampleResponse: {
       total_count: 11,
-      comments: [
-        {
-          author: "butter_bridge",
-          body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
-          article_id: 1,
-          votes: 0,
-          created_at: "2020-10-31T03:03:00.000Z",
-        },
-      ],
+      comments: {
+        totalCount: 1,
+        comments: [
+          {
+            author: "butter_bridge",
+            body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            article_id: 1,
+            votes: 0,
+            created_at: "2020-10-31T03:03:00.000Z",
+          },
+        ],
+      },
     },
   },
   "DELETE /api/comments/:comment_id": {
@@ -163,14 +168,16 @@ module.exports = {
   "GET /api/users": {
     description: "Retreives all users as an array of objects",
     queries: [],
-    exampleResponse: [
-      {
-        avatar_url:
-          "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
-        name: "jonny",
-        username: "butter_bridge",
-      },
-    ],
+    exampleResponse: {
+      users: [
+        {
+          avatar_url:
+            "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+          name: "jonny",
+          username: "butter_bridge",
+        },
+      ],
+    },
   },
   "GET /api/users/:username": {
     description: "Retrieves a user based on username in url.",
