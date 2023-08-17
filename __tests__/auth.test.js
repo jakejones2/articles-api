@@ -33,4 +33,25 @@ describe("admin page", () => {
   test("should respond 403 if not logged in", () => {
     return request(app).get("/auth/admin").expect(401);
   });
+  test("should respond with 200 if logged in", () => {
+    const postBody = {
+      username: "rogersop",
+      password: "mcNa36GX",
+    };
+    return request(app)
+      .post("/auth")
+      .send(postBody)
+      .then(({ body: { accessToken } }) => {
+        return request(app)
+          .get("/auth/admin")
+          .set("Authorization", `Bearer ${accessToken}`)
+          .expect(200);
+      });
+  });
+});
+
+describe("GET /refresh", () => {
+  test("should respond 401 if not logged in", () => {
+    return request(app).get("/refresh").expect(401);
+  });
 });

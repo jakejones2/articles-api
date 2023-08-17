@@ -71,7 +71,7 @@ describe("GET api/users/:username", () => {
   });
 });
 
-describe("POST /register", () => {
+describe("POST /api/users", () => {
   test("should return 201 if username does not already exist", () => {
     const postBody = {
       username: "bob",
@@ -79,7 +79,7 @@ describe("POST /register", () => {
       avatar_url: "https://avatars2.githubusercontent.com/u/24604688?s=460&v=4",
       password: "myCrazy44P@ssword",
     };
-    return request(app).post("/register").send(postBody).expect(201);
+    return request(app).post("/api/users").send(postBody).expect(201);
   });
   test("should return 409 if username already exists", () => {
     const postBody = {
@@ -88,7 +88,7 @@ describe("POST /register", () => {
       avatar_url: "https://avatars2.githubusercontent.com/u/24604688?s=460&v=4",
       password: "myCrazy44P@ssword",
     };
-    return request(app).post("/register").send(postBody).expect(409);
+    return request(app).post("/api/users").send(postBody).expect(409);
   });
 });
 // need to test the rest of the POST body - validate fields etc. even image url eventually.

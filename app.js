@@ -1,4 +1,5 @@
 const express = require("express");
+const cookieParser = require("cookie-parser");
 
 //controllers
 const notFound = require("./controllers/not-found");
@@ -10,13 +11,17 @@ const {
 
 // routers
 const apiRouter = require("./routes/api-router");
-const registerRouter = require("./routes/register-router");
 const authRouter = require("./routes/auth-router");
+const refreshRouter = require("./routes/refresh-router");
+const logoutRouter = require("./routes/logout-router");
 
 const app = express();
 
 app.use(express.json());
-app.use("/register", registerRouter);
+app.use(cookieParser());
+
+app.use("/refresh", refreshRouter);
+app.use("/logout", logoutRouter);
 app.use("/auth", authRouter);
 app.use("/api", apiRouter);
 

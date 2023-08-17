@@ -38,16 +38,18 @@ function selectUserAuth(username) {
     });
 }
 
+// sort out promises here...
 function insertUser({ username, name, avatar_url, password }) {
-  const hash = bcrypt.hash(password, 10);
-  const queryString = format(
-    `
-  INSERT INTO users (username, name, avatar_url, password_hash)
-  VALUES %L RETURNING *;`,
-    [[username, name, avatar_url, hash]]
-  );
-  return db.query(queryString).then(({ rows }) => {
-    return rows;
+  return bcrypt.hash(password, 10).then((hash) => {
+    const queryString = format(
+      `
+    INSERT INTO users (username, name, avatar_url, password_hash)
+    VALUES %L RETURNING *;`,
+      [[username, name, avatar_url, hash]]
+    );
+    return db.query(queryString).then(({ rows }) => {
+      return rows;
+    });
   });
 }
 
@@ -62,6 +64,25 @@ function addRefreshToken(token, username) {
     });
 }
 
+function selectUserByRefreshToken(token) {
+  if (!token) {
+    console.log(token);
+    return Promise.reject();
+  } else {
+    return db
+      .query(`SELECT username FROM users WHERE refresh_token = $1`, [token])
+      .then(({ rows }) => {
+        return rows[0];
+      });
+  }
+}
+
+function deleteUserRefreshToken(user) {
+  return db.query(`UPDATE users SET refresh_token = '' WHERE username = $1`, [
+    user,
+  ]);
+}
+
 module.exports = {
   selectUsernames,
   selectUsers,
@@ -69,4 +90,6 @@ module.exports = {
   insertUser,
   selectUserAuth,
   addRefreshToken,
+  selectUserByRefreshToken,
+  deleteUserRefreshToken,
 };
