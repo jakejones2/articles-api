@@ -29,6 +29,14 @@ describe("GET /api/users", () => {
         });
       });
   });
+  test("user information does not include password_hash nor salt", () => {
+    return request(app)
+      .get("/api/users")
+      .then(({ body: { users } }) => {
+        expect(users[0]).not.toHaveProperty("password_hash");
+        expect(users[0]).not.toHaveProperty("salt");
+      });
+  });
 });
 
 describe("GET api/users/:username", () => {
@@ -45,6 +53,14 @@ describe("GET api/users/:username", () => {
           avatar_url:
             "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
         });
+      });
+  });
+  test("niether user password_hash nor salt should be visible", () => {
+    return request(app)
+      .get("/api/users/butter_bridge")
+      .then(({ body: { user } }) => {
+        expect(user).not.toHaveProperty("password_hash");
+        expect(user).not.toHaveProperty("salt");
       });
   });
   test("should return a 404 if user not found", () => {

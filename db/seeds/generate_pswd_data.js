@@ -11,6 +11,11 @@ function genRandomString(length) {
   return result;
 }
 
-bcrypt.hash(genRandomString(12), 10, (err, hash) => {
-  console.log(hash);
+bcrypt.genSalt(10, (err, salt) => {
+  const pswd = genRandomString(8);
+  console.log("pswd: ", pswd);
+  console.log("salt: ", salt);
+  bcrypt.hash(pswd, salt, (err, hash) => {
+    console.log("hash: ", hash);
+  });
 });
