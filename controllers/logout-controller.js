@@ -3,31 +3,28 @@ const {
   deleteUserRefreshToken,
 } = require("../models/users-model");
 
-function logoutController(req, res, next) {
+function logoutController(req, res) {
   const cookies = req.cookies;
   if (!cookies?.jwt) res.sendStatus(204);
   else {
     const refreshToken = cookies.jwt;
-    return selectUserByRefreshToken(refreshToken)
+    selectUserByRefreshToken(refreshToken)
       .then((user) => {
         return deleteUserRefreshToken(user);
       })
       .then(() => {
         res.clearCookie("jwt", {
           httpOnly: true,
-          maxAge: 24 * 60 * 60 * 1000,
           sameSite: "None",
-          secure: true,
+          secure: false, // true in production
         });
         res.sendStatus(204);
       })
       .catch(() => {
         res.clearCookie("jwt", {
           httpOnly: true,
-          maxAge: 24 * 60 * 60 * 1000,
-          // maxAge redundant?
           sameSite: "None",
-          secure: true,
+          secure: false, // true in production
         });
         res.sendStatus(204);
       });

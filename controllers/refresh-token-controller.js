@@ -2,11 +2,10 @@ const { selectUserByRefreshToken } = require("../models/users-model");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
-function handleRefreshToken(req, res, next) {
+function handleRefreshToken(req, res) {
   const cookies = req.cookies;
   if (!cookies?.jwt) res.sendStatus(401);
   else {
-    console.log(cookies.jwt);
     const refreshToken = cookies.jwt;
     return selectUserByRefreshToken(refreshToken)
       .then((user) => {
@@ -26,9 +25,7 @@ function handleRefreshToken(req, res, next) {
           }
         );
       })
-      .catch((err) => {
-        console.log(err);
-        console.log("here");
+      .catch(() => {
         res.sendStatus(403);
       });
   }

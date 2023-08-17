@@ -1,10 +1,12 @@
 const bcrypt = require("bcrypt");
-const { selectUserAuth, addRefreshToken } = require("../models/users-model");
+const {
+  selectUserAuth,
+  updateUserRefreshToken,
+} = require("../models/users-model");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
-function authUser(req, res, next) {
-  let accessToken;
+function authUser(req, res) {
   const { username, password } = req.body;
   if (!username || !password) {
     res.status(400).send({ msg: "Username and password required" });
@@ -14,28 +16,26 @@ function authUser(req, res, next) {
         return bcrypt.compare(password, user.password_hash);
       })
       .then((match) => {
-        if (match) {
-          // create JWTs token - normal and refresh.
-          accessToken = jwt.sign(
-            { username },
-            process.env.ACCESS_TOKEN_SECRET,
-            { expiresIn: "300s" }
-          );
-          const refreshToken = jwt.sign(
-            { username },
-            process.env.REFRESH_TOKEN_SECRET,
-            { expiresIn: "1d" }
-          );
-          return addRefreshToken(refreshToken, username);
-        } else return Promise.reject();
+        if (!match) return Promise.reject();
+        const refreshToken = jwt.sign(
+          { username },
+          process.env.REFRESH_TOKEN_SECRET,
+          { expiresIn: "1d" }
+        );
+        return updateUserRefreshToken(refreshToken, username);
       })
       .then((refreshToken) => {
         res.cookie("jwt", refreshToken, {
           httpOnly: true,
           sameSite: "None",
           maxAge: 24 * 60 * 60 * 1000,
-          secure: true,
+          secure: false, // true in production
         });
+        const accessToken = jwt.sign(
+          { username },
+          process.env.ACCESS_TOKEN_SECRET,
+          { expiresIn: "300s" }
+        );
         res.status(200).send({ accessToken });
       })
       .catch(() => {

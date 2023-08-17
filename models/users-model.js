@@ -53,7 +53,7 @@ function insertUser({ username, name, avatar_url, password }) {
   });
 }
 
-function addRefreshToken(token, username) {
+function updateUserRefreshToken(token, username) {
   return db
     .query(
       "UPDATE users SET refresh_token = $1 WHERE username = $2 RETURNING *;",
@@ -89,7 +89,7 @@ module.exports = {
   selectUser,
   insertUser,
   selectUserAuth,
-  addRefreshToken,
+  updateUserRefreshToken,
   selectUserByRefreshToken,
   deleteUserRefreshToken,
 };
