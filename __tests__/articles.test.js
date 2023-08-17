@@ -12,7 +12,7 @@ beforeEach(() => {
   return seed(data);
 });
 
-describe("GET articles/:article_id", () => {
+describe("GET /api/articles/:article_id", () => {
   test("GET 200 from /articles/:article_id ", () => {
     return request(app).get("/api/articles/1").expect(200);
   });
@@ -52,6 +52,16 @@ describe("GET articles/:article_id", () => {
         });
       });
   });
+  test("returns a new property comment_count", () => {
+    return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then(({ body: { article } }) => {
+        expect(article).toHaveProperty("comment_count", 11);
+      });
+  });
+});
+describe("GET /api/articles/:article_id error handling", () => {
   test("Out of range id produces 404 and message", () => {
     return request(app)
       .get("/api/articles/36")
@@ -70,7 +80,7 @@ describe("GET articles/:article_id", () => {
   });
 });
 
-describe("GET articles", () => {
+describe("GET /api/articles", () => {
   test("GET 200 from /api/articles  ", () => {
     return request(app).get("/api/articles").expect(200);
   });
