@@ -22,6 +22,33 @@ module.exports = {
       ],
     },
   },
+  "POST /api/articles": {
+    description:
+      "Adds and validates new articles. Default image url created if none offered.",
+    queries: [],
+    examplePostBody: {
+      author: "butter_bridge",
+      title: "important new article",
+      body: "something I really need to share immediately with everyone",
+      topic: "cats",
+      article_img_url:
+        "https://res.cloudinary.com/dk-find-out/image/upload/q_80,w_1920,f_auto/DCTM_Penguin_UK_DK_AL644648_p7nd0z.jpg",
+    },
+    exampleResponse: {
+      article: {
+        article_id: 14,
+        votes: 0,
+        comment_count: 0,
+        author: "butter_bridge",
+        title: "important new article",
+        body: "something I really need to share immediately with everyone",
+        topic: "cats",
+        created_at: "2020-08-03T13:14:00.000Z",
+        article_img_url:
+          "https://res.cloudinary.com/dk-find-out/image/upload/q_80,w_1920,f_auto/DCTM_Penguin_UK_DK_AL644648_p7nd0z.jpg",
+      },
+    },
+  },
   "GET /api/articles/:article_id": {
     description:
       "serves an individual article based on article_id url parameter",
@@ -59,55 +86,10 @@ module.exports = {
       },
     },
   },
-  "POST /api/articles/": {
-    description:
-      "Adds and validates new articles. Default image url created if none offered.",
-    queries: [],
-    examplePostBody: {
-      author: "butter_bridge",
-      title: "important new article",
-      body: "something I really need to share immediately with everyone",
-      topic: "cats",
-      article_img_url:
-        "https://res.cloudinary.com/dk-find-out/image/upload/q_80,w_1920,f_auto/DCTM_Penguin_UK_DK_AL644648_p7nd0z.jpg",
-    },
-    exampleResponse: {
-      article: {
-        article_id: 14,
-        votes: 0,
-        comment_count: 0,
-        author: "butter_bridge",
-        title: "important new article",
-        body: "something I really need to share immediately with everyone",
-        topic: "cats",
-        created_at: "2020-08-03T13:14:00.000Z",
-        article_img_url:
-          "https://res.cloudinary.com/dk-find-out/image/upload/q_80,w_1920,f_auto/DCTM_Penguin_UK_DK_AL644648_p7nd0z.jpg",
-      },
-    },
-  },
   "DELETE /api/articles:article_id": {
     description: "deletes article at given id, returns 204 no content",
     queries: [],
     exampleResponse: null,
-  },
-  "POST /api/articles/:article_id/comments": {
-    description:
-      "Creates a comment on an individual article based on article_id url parameter. Username must be registered.",
-    queries: [],
-    examplePostBody: {
-      username: "butter_bridge",
-      body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
-    },
-    exampleResponse: {
-      comment: {
-        author: "butter_bridge",
-        body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
-        article_id: 1,
-        votes: 0,
-        created_at: "2020-10-31T03:03:00.000Z",
-      },
-    },
   },
   "GET /api/articles/:article_id/comments": {
     description:
@@ -129,10 +111,23 @@ module.exports = {
       },
     },
   },
-  "DELETE /api/comments/:comment_id": {
-    description: "Deletes a comment based on comment_id in url. Returns a 204.",
+  "POST /api/articles/:article_id/comments": {
+    description:
+      "Creates a comment on an individual article based on article_id url parameter. Username must be registered.",
     queries: [],
-    exampleResponse: null,
+    examplePostBody: {
+      username: "butter_bridge",
+      body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+    },
+    exampleResponse: {
+      comment: {
+        author: "butter_bridge",
+        body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+        article_id: 1,
+        votes: 0,
+        created_at: "2020-10-31T03:03:00.000Z",
+      },
+    },
   },
   "PATCH /api/comments/:comment_id": {
     description: "Updates the votes on a comment based on comment_id in url.",
@@ -146,6 +141,11 @@ module.exports = {
         created_at: "2020-04-06T12:17:00.000Z",
       },
     },
+  },
+  "DELETE /api/comments/:comment_id": {
+    description: "Deletes a comment based on comment_id in url. Returns a 204.",
+    queries: [],
+    exampleResponse: null,
   },
   "GET /api/topics": {
     description: "serves an array of all topics",
