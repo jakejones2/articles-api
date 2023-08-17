@@ -738,3 +738,33 @@ describe("POST /api/articles error handling", () => {
       });
   });
 });
+
+describe("DELETE /api/articles/:article_id", () => {
+  test("should return 204 when given valid article_id", () => {
+    return request(app).delete("/api/articles/1").expect(204);
+  });
+  test("should delete specified article", () => {
+    return request(app)
+      .delete("/api/articles/1")
+      .then(() => {
+        return request(app).get("/api/articles/1").expect(404);
+      });
+  });
+  test("should delete all related comments", () => {
+    return request(app)
+      .delete("/api/articles/1")
+      .then(() => {
+        return request(app).get("/api/articles/1/comments").expect(404);
+      });
+  });
+});
+describe("DELETE /api/articles/:article_id error handling", () => {
+  test("sohuld return 404 if article cannot be found", () => {
+    return request(app)
+      .delete("/api/articles/1000")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Article not found");
+      });
+  });
+});

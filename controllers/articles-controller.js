@@ -4,6 +4,7 @@ const {
   insertArticle,
   selectArticleAndCommentCountById,
   selectArticles,
+  removeArticle,
 } = require("../models/articles-model");
 
 const {
@@ -68,9 +69,18 @@ function postArticles(req, res, next) {
     .catch(next);
 }
 
+function deleteArticleById(req, res, next) {
+  removeArticle(req.params.article_id)
+    .then(() => {
+      res.sendStatus(204);
+    })
+    .catch(next);
+}
+
 module.exports = {
   getArticles,
   getArticleById,
   patchArticleById,
   postArticles,
+  deleteArticleById,
 };
