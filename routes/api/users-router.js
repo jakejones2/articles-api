@@ -3,7 +3,7 @@ const {
   getUsers,
   getUser,
   postUser,
-} = require("../controllers/api/user-controller");
+} = require("../../controllers/api/user-controller");
 
 usersRouter.get("/", getUsers);
 usersRouter.post("/", postUser);

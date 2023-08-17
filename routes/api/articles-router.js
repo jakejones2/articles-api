@@ -5,11 +5,11 @@ const {
   patchArticleById,
   postArticles,
   deleteArticleById,
-} = require("../controllers/api/articles-controller");
+} = require("../../controllers/api/articles-controller");
 const {
   getComments,
   postComment,
-} = require("../controllers/api/comments-controller");
+} = require("../../controllers/api/comments-controller");
 
 articlesRouter.route("/").get(getArticles).post(postArticles);
 
