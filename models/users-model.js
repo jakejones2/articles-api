@@ -51,10 +51,22 @@ function insertUser({ username, name, avatar_url, password }) {
   });
 }
 
+function addRefreshToken(token, username) {
+  return db
+    .query(
+      "UPDATE users SET refresh_token = $1 WHERE username = $2 RETURNING *;",
+      [token, username]
+    )
+    .then(({ rows }) => {
+      return rows[0].refresh_token;
+    });
+}
+
 module.exports = {
   selectUsernames,
   selectUsers,
   selectUser,
   insertUser,
   selectUserAuth,
+  addRefreshToken,
 };

@@ -19,6 +19,7 @@ app.use(express.json());
 app.use("/register", registerRouter);
 app.use("/auth", authRouter);
 app.use("/api", apiRouter);
+
 app.use(notFound);
 app.use(psqlErrorHandler);
 app.use(customErrorHandler);

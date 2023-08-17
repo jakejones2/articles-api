@@ -30,7 +30,8 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
         username VARCHAR PRIMARY KEY,
         name VARCHAR NOT NULL,
         avatar_url VARCHAR,
-        password_hash VARCHAR NOT NULL
+        password_hash VARCHAR NOT NULL,
+        refresh_token VARCHAR
       );`);
 
       return Promise.all([topicsTablePromise, usersTablePromise]);

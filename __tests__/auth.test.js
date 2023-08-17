@@ -28,3 +28,9 @@ describe("POST /auth", () => {
     return request(app).post("/auth").send(postBody).expect(401);
   });
 }); // check for bonus keys etc.
+
+describe("admin page", () => {
+  test("should respond 403 if not logged in", () => {
+    return request(app).get("/auth/admin").expect(401);
+  });
+});
