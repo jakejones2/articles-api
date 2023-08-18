@@ -39,7 +39,7 @@ function authUser(req, res) {
         res.status(200).send({ accessToken });
       })
       .catch((err) => {
-        if (err.status) {
+        if (err?.status) {
           res.status(err.status).send({ msg: err.msg });
         } else res.sendStatus(401);
       });
