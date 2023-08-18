@@ -29,8 +29,9 @@ function getArticles(req, res, next) {
   const promises = [];
   promises.push(validateArticleQueries(req.query));
   promises.push(validatePaginationQueries(req.query));
-  const topic = req.query.topic;
+  const { topic, author } = req.query;
   if (topic) promises.push(selectTopic(topic));
+  if (author) promises.push(selectUser(author));
   return Promise.all(promises)
     .then(() => {
       return selectArticles(req.query);

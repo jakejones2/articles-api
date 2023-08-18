@@ -53,6 +53,10 @@ function insertUser({ username, name, avatar_url, password }) {
   });
 }
 
+function removeUser(username) {
+  return db.query("DELETE FROM users WHERE username = $1;", [username]);
+}
+
 function updateUserRefreshToken(token, username) {
   return db
     .query(
@@ -66,7 +70,6 @@ function updateUserRefreshToken(token, username) {
 
 function selectUserByRefreshToken(token) {
   if (!token) {
-    console.log(token);
     return Promise.reject();
   } else {
     return db
@@ -88,6 +91,7 @@ module.exports = {
   selectUsers,
   selectUser,
   insertUser,
+  removeUser,
   selectUserAuth,
   updateUserRefreshToken,
   selectUserByRefreshToken,

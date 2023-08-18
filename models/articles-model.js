@@ -32,11 +32,13 @@ function selectArticleById(article_id) {
 
 function selectArticles({
   topic,
+  author,
   sort_by = "created_at",
   order = "DESC",
   limit = 10,
   p = 1,
 }) {
+  // build string
   let queryString = `
     SELECT       
       articles.author, 
@@ -51,19 +53,18 @@ function selectArticles({
     FROM articles 
     LEFT OUTER JOIN comments ON articles.article_id = comments.article_id`;
   if (topic) queryString += ` WHERE articles.topic = '${topic}'`;
+  if (topic && author) queryString += ` AND articles.author = '${author}'`;
+  if (author && !topic) queryString += ` WHERE articles.author = '${author}'`;
   queryString += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order}`;
   queryString += ` LIMIT ${limit} OFFSET ${(p - 1) * limit};`;
+  // return query
   return db.query(queryString).then(({ rows }) => {
-    if (!rows.length) {
-      return Promise.reject({ status: 404, msg: "Articles not found" });
-    } else {
-      const totalCount = rows[0].total_count;
-      const articles = rows.map((row) => {
-        delete row.total_count;
-        return row;
-      });
-      return { articles, totalCount };
-    }
+    const totalCount = rows[0]?.total_count ? rows[0].total_count : 0;
+    const articles = rows.map((row) => {
+      delete row.total_count;
+      return row;
+    });
+    return { articles, totalCount };
   });
 }
 

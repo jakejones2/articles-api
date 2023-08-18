@@ -2,6 +2,7 @@ const {
   selectUsers,
   selectUser,
   insertUser,
+  removeUser,
 } = require("../../models/users-model");
 
 function getUsers(_, res, next) {
@@ -36,4 +37,14 @@ function postUser(req, res, next) {
     });
 }
 
-module.exports = { getUsers, getUser, postUser };
+function deleteUser(req, res, next) {
+  removeUser(req.params.username)
+    .then(() => {
+      res.sendStatus(204);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+}
+
+module.exports = { getUsers, getUser, postUser, deleteUser };

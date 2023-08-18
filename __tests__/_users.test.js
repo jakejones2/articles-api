@@ -93,3 +93,59 @@ describe("POST /api/users", () => {
 });
 // need to test the rest of the POST body - validate fields etc. even image url eventually.
 // validate password on front end?
+
+describe("DELETE /api/users", () => {
+  test("should respond with 401 if not logged in", () => {
+    return request(app).delete("/api/users/rogersop").expect(401);
+  });
+  test("should respond with 204 if user matches logged in user, deleting user and their articles", () => {
+    const postBody = {
+      username: "rogersop",
+      password: "mcNa36GX",
+    };
+    // authenticate user
+    return request(app)
+      .post("/auth")
+      .send(postBody)
+      .then(({ body: { accessToken } }) => {
+        // send delete along with accessToken
+        return request(app)
+          .delete("/api/users/rogersop")
+          .set("Authorization", `Bearer ${accessToken}`)
+          .expect(204)
+          .then(() => {
+            // check user deleted
+            return request(app)
+              .get("/api/users/rogersop")
+              .expect(404)
+              .then(() => {
+                // check article deleted
+                return request(app)
+                  .get("/api/articles?author=rogersop")
+                  .expect(404);
+              });
+          });
+      });
+  });
+});
+
+describe("admin page", () => {
+  test("should respond 403 if not logged in", () => {
+    return request(app).get("/auth/admin").expect(401);
+  });
+  test("should respond with 200 if logged in", () => {
+    const postBody = {
+      username: "rogersop",
+      password: "mcNa36GX",
+    };
+    return request(app)
+      .post("/auth")
+      .send(postBody)
+      .then(({ body: { accessToken } }) => {
+        return request(app)
+          .get("/auth/admin")
+          .set("Authorization", `Bearer ${accessToken}`)
+          .expect(200);
+      });
+  });
+});

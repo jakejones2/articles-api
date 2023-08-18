@@ -221,6 +221,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       });
   });
 });
+
 describe("POST api/articles/:article_id/comments error handling", () => {
   test("receive 404 if username not in users table", () => {
     const testComment = {
