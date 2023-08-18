@@ -72,7 +72,7 @@ describe("GET api/users/:username", () => {
 });
 
 describe("POST /api/users", () => {
-  test("should return 201 and new user without password_hash or refresh_token if username does not already exist", () => {
+  test("should return 201 and new user without password_hash or refresh_token, if username does not already exist", () => {
     const postBody = {
       username: "bob",
       name: "boris",
@@ -92,7 +92,7 @@ describe("POST /api/users", () => {
         });
       });
   });
-  test("should return 201 if details correct but extra keys", () => {
+  test("should return 201 if details correct but extra keys in body", () => {
     const postBody = {
       username: "bob",
       favefood: "ricecakes",
@@ -122,6 +122,7 @@ describe("POST /api/users", () => {
       });
   });
 });
+
 describe("POST /api/users error handling", () => {
   test("should return 409 if username already exists", () => {
     const postBody = {
@@ -178,8 +179,6 @@ describe("POST /api/users error handling", () => {
       });
   });
 });
-// need to test the rest of the POST body - validate fields etc. even image url eventually.
-// validate password on front end?
 
 describe("DELETE /api/users", () => {
   test("should respond with 401 if not logged in", () => {
