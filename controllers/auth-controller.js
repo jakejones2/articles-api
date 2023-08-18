@@ -38,8 +38,10 @@ function authUser(req, res) {
         );
         res.status(200).send({ accessToken });
       })
-      .catch(() => {
-        res.sendStatus(401);
+      .catch((err) => {
+        if (err.status) {
+          res.status(err.status).send({ msg: err.msg });
+        } else res.sendStatus(401);
       });
   }
 }

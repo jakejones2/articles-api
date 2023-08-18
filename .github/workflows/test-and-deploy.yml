@@ -1,0 +1,52 @@
+name: Test & Deploy
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  test-utils:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout and clone repo
+        uses: actions/checkout@v3
+      - name: install dependencies
+        run: npm install
+      - name: run util tests
+        run: npm run test-utils
+  test-app:
+    needs: test-utils
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout and clone repo
+        uses: actions/checkout@v3
+      - name: install dependencies
+        run: npm install
+      - name: use postresql
+        uses: harmon758/postgresql-action@v1
+        with:
+          postgresql db: test_db
+          postgresql user: test_user
+          postgresql password: test_password
+      - name: set timezone
+        uses: szenius/set-timezone@v1.2
+        with:
+          timezoneLinux: "Europe/London"
+      - name: run app tests
+        run: PGDATABASE=test_db PGUSER=test_user PGPASSWORD=test_password npm run test
+  test-app-live:
+    needs: test-app
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout and clone repo
+        uses: actions/checkout@v3
+      - name: install dependencies
+        run: npm install
+      - name: set timezone
+        uses: szenius/set-timezone@v1.2
+        with:
+          timezoneLinux: "Europe/London"
+      - name: run app tests live db
+        run: NODE_ENV=production DATABASE_URL=${{secrets.DATABASE_URL}} npm run test
