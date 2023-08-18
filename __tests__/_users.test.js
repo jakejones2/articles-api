@@ -72,15 +72,57 @@ describe("GET api/users/:username", () => {
 });
 
 describe("POST /api/users", () => {
-  test("should return 201 if username does not already exist", () => {
+  test("should return 201 and new user without password_hash or refresh_token if username does not already exist", () => {
     const postBody = {
       username: "bob",
+      name: "boris",
+      avatar_url: "https://avatars3.githubusercontent.com/u/24604688?s=460&v=4",
+      password: "myCrazy44P@ssword",
+    };
+    return request(app)
+      .post("/api/users")
+      .send(postBody)
+      .expect(201)
+      .then(({ body: { user } }) => {
+        expect(user).toEqual({
+          username: "bob",
+          name: "boris",
+          avatar_url:
+            "https://avatars3.githubusercontent.com/u/24604688?s=460&v=4",
+        });
+      });
+  });
+  test("should return 201 if details correct but extra keys", () => {
+    const postBody = {
+      username: "bob",
+      favefood: "ricecakes",
       name: "boris",
       avatar_url: "https://avatars2.githubusercontent.com/u/24604688?s=460&v=4",
       password: "myCrazy44P@ssword",
     };
     return request(app).post("/api/users").send(postBody).expect(201);
   });
+  test("should add default avatar_url if not provided", () => {
+    const postBody = {
+      username: "bob",
+      name: "boris",
+      password: "myCrazy44P@ssword",
+    };
+    return request(app)
+      .post("/api/users")
+      .send(postBody)
+      .expect(201)
+      .then(({ body: { user } }) => {
+        expect(user).toEqual({
+          username: "bob",
+          name: "boris",
+          avatar_url:
+            "https://avatars2.githubusercontent.com/u/24604688?s=460&v=4",
+        });
+      });
+  });
+});
+describe("POST /api/users error handling", () => {
   test("should return 409 if username already exists", () => {
     const postBody = {
       username: "butter_bridge",
@@ -90,6 +132,51 @@ describe("POST /api/users", () => {
     };
     return request(app).post("/api/users").send(postBody).expect(409);
   });
+  test("should return 400 if username is missing", () => {
+    const postBody = {
+      name: "boris",
+      avatar_url: "https://avatars2.githubusercontent.com/u/24604688?s=460&v=4",
+      password: "myCrazy44P@ssword",
+    };
+    return request(app)
+      .post("/api/users")
+      .send(postBody)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Body missing username, password or name");
+      });
+  });
+  test("should return 400 if password is missing", () => {
+    const postBody = {
+      username: "butter_bridge",
+      name: "boris",
+      avatar_url: "https://avatars2.githubusercontent.com/u/24604688?s=460&v=4",
+    };
+    return request(app).post("/api/users").send(postBody).expect(400);
+  });
+  test("should return 400 if name is missing", () => {
+    const postBody = {
+      username: "butter_bridge",
+      avatar_url: "https://avatars2.githubusercontent.com/u/24604688?s=460&v=4",
+      password: "myCrazy44P@ssword",
+    };
+    return request(app).post("/api/users").send(postBody).expect(400);
+  });
+  test("respond with 400 if url invalid", () => {
+    const postBody = {
+      username: "butter_bridge",
+      name: "boris",
+      avatar_url: "not_a_url",
+      password: "myCrazy44P@ssword",
+    };
+    return request(app)
+      .post("/api/users")
+      .send(postBody)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Invalid image url");
+      });
+  });
 });
 // need to test the rest of the POST body - validate fields etc. even image url eventually.
 // validate password on front end?
@@ -98,7 +185,7 @@ describe("DELETE /api/users", () => {
   test("should respond with 401 if not logged in", () => {
     return request(app).delete("/api/users/rogersop").expect(401);
   });
-  test("should respond with 204 if user matches logged in user, deleting user and their articles", () => {
+  test("should respond with 404 if logged in but user does not exist", () => {
     const postBody = {
       username: "rogersop",
       password: "mcNa36GX",
@@ -109,6 +196,43 @@ describe("DELETE /api/users", () => {
       .send(postBody)
       .then(({ body: { accessToken } }) => {
         // send delete along with accessToken
+        return request(app)
+          .delete("/api/users/newuser")
+          .set("Authorization", `Bearer ${accessToken}`)
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("User not found");
+          });
+      });
+  });
+  test("should respond with 403 if logged in and user exists, but logged-in user is not target", () => {
+    const postBody = {
+      username: "rogersop",
+      password: "mcNa36GX",
+    };
+    // authenticate user
+    return request(app)
+      .post("/auth")
+      .send(postBody)
+      .then(({ body: { accessToken } }) => {
+        // send delete request along with accessToken
+        return request(app)
+          .delete("/api/users/butter_bridge")
+          .set("Authorization", `Bearer ${accessToken}`)
+          .expect(403);
+      });
+  });
+  test("should respond with 204 if target matches logged in user, deleting user and their articles", () => {
+    const postBody = {
+      username: "rogersop",
+      password: "mcNa36GX",
+    };
+    // authenticate user
+    return request(app)
+      .post("/auth")
+      .send(postBody)
+      .then(({ body: { accessToken } }) => {
+        // send delete request along with accessToken
         return request(app)
           .delete("/api/users/rogersop")
           .set("Authorization", `Bearer ${accessToken}`)
@@ -129,9 +253,9 @@ describe("DELETE /api/users", () => {
   });
 });
 
-describe("admin page", () => {
+describe("GET /auth/account", () => {
   test("should respond 403 if not logged in", () => {
-    return request(app).get("/auth/admin").expect(401);
+    return request(app).get("/auth/account").expect(401);
   });
   test("should respond with 200 if logged in", () => {
     const postBody = {
@@ -143,9 +267,14 @@ describe("admin page", () => {
       .send(postBody)
       .then(({ body: { accessToken } }) => {
         return request(app)
-          .get("/auth/admin")
+          .get("/auth/account")
           .set("Authorization", `Bearer ${accessToken}`)
-          .expect(200);
+          .expect(200)
+          .then(({ body }) => {
+            expect(body).toMatchObject({
+              "logged-in": true,
+            });
+          });
       });
   });
 });

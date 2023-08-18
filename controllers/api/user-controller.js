@@ -4,6 +4,7 @@ const {
   insertUser,
   removeUser,
 } = require("../../models/users-model");
+const { validatePostUser } = require("../../models/validators/user-validators");
 
 function getUsers(_, res, next) {
   selectUsers()
@@ -22,18 +23,21 @@ function getUser(req, res, next) {
 }
 
 function postUser(req, res, next) {
-  const { username, password } = req.body;
-  if (!username || !password) {
-    res.status(400).send({ msg: "Username and password required" });
-  }
-  selectUser(username)
+  validatePostUser(req.body)
+    .then((username) => {
+      return selectUser(username);
+    })
     .then(() => {
       res.status(409).send({ msg: "Username already exists" });
     })
-    .catch(() => {
-      insertUser(req.body).then((user) => {
-        res.status(201).send({ user });
-      });
+    .catch(({ status, msg }) => {
+      if (status === 404) {
+        insertUser(req.body).then((user) => {
+          res.status(201).send({ user });
+        });
+      } else {
+        res.status(status).send({ msg });
+      }
     });
 }
 
@@ -48,3 +52,8 @@ function deleteUser(req, res, next) {
 }
 
 module.exports = { getUsers, getUser, postUser, deleteUser };
+
+// const { username, password } = req.body;
+// if (!username || !password) {
+//   return res.status(400).send({ msg: "Username and password required" });
+// }

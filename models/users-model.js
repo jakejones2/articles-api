@@ -41,14 +41,16 @@ function selectUserAuth(username) {
 // sort out promises here...
 function insertUser({ username, name, avatar_url, password }) {
   return bcrypt.hash(password, 10).then((hash) => {
-    const queryString = format(
-      `
-    INSERT INTO users (username, name, avatar_url, password_hash)
-    VALUES %L RETURNING *;`,
-      [[username, name, avatar_url, hash]]
-    );
-    return db.query(queryString).then(({ rows }) => {
-      return rows;
+    const data = [username, name, hash];
+    let queryString = `INSERT INTO users (username, name, password_hash`;
+    if (avatar_url) {
+      data.push(avatar_url);
+      queryString += `, avatar_url`;
+    }
+    queryString += `) VALUES %L RETURNING username, name, avatar_url;`;
+    const query = format(queryString, [data]);
+    return db.query(query).then(({ rows }) => {
+      return rows[0];
     });
   });
 }

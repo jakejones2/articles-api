@@ -6,12 +6,12 @@ const {
   deleteUser,
 } = require("../../controllers/api/user-controller");
 const { authenticateUsernameParameter } = require("../../middleware/verifyJWT");
-
+const { checkUser } = require("../../middleware/check-user");
 usersRouter.route("/").get(getUsers).post(postUser);
 
 usersRouter
   .route("/:username")
   .get(getUser)
-  .delete(authenticateUsernameParameter, deleteUser);
+  .delete(checkUser, authenticateUsernameParameter, deleteUser);
 
 module.exports = usersRouter;
