@@ -38,7 +38,7 @@ To create your own version of this project, first install the following:
 
 ### 2 - Clone the repo locally
 
-To clone the repo, choose and navigate to a parent directory, and enter the following into the command line:
+To clone the repository, choose and navigate to a parent directory, and enter the following into the command line:
 
 ```
 git clone https://github.com/jakejones2/nc-news.git
@@ -46,7 +46,7 @@ git clone https://github.com/jakejones2/nc-news.git
 
 ### 3 - Install all dependencies
 
-Once cloned, cd into the new directory and run `npm install` to install all dependencies.
+Once you have cloned the repository, cd into the new directory and run `npm install` to install all dependencies.
 
 ### 4 - Connect to databases with .env files
 
@@ -99,7 +99,7 @@ Accepts the following queries:
 - `limit` (int) determines the number of articles per page
 - `p` (int) determines the page
 
-When viewing **all** articles, results are sent as an array **without the body of each review**. To see the body of a review, send a GET request to `/api/articles/<enter article_id here>`.
+When viewing **all** articles, results are sent as an array **without the body of each review**. To see the body of a review, send a GET request to `/api/articles/:article_id`.
 
 ### POST
 
@@ -116,7 +116,7 @@ Example request body to POST an article:
 }
 ```
 
-The author and topic **must already exist in the database**. If these fields represent new data, and them first by sending POST requests to `/api/users` and `/api/topics`.
+An `author` must correspond to a `username` in the users table, and the topic to an existing topic. If these fields represent **new data**, you must first add them to their respective tables by sending POST requests to `/api/users` and `/api/topics`. You must also send an **access token** in the request header authenticating you as the username entered. See _Authorization_ for more information.
 
 ### PATCH
 
@@ -128,9 +128,13 @@ Example request body to PATCH an article and increase its votes by 3:
 { inc_votes: 3 }
 ```
 
+All voting is anonymous and unlimited on this API - any user can send any number of PATCH requests. If you want this feature to be more serious and indicative of popularity, consider representing votes as a many-to-many relationship between users and articles/comments. This will require some refactoring!
+
 ### DELETE
 
-DELETE `/api/articles/:article_id` to delete an article. Responds with 204 (no content) upon success.
+DELETE `/api/articles/:article_id` to delete an article.
+
+A succesful deletion returns a status code of 204 (no content). To delete an article, you must send a valid **access token** (see _Authentication_).
 
 ## Comments
 
@@ -156,15 +160,18 @@ Example request body to POST a new comment:
 }
 ```
 
+Like an article, you must be **authenticated** to post a comment, and must therefore send a valid **access token** (see _Authentication_).
+
 ### DELETE
 
-DELETE `/api/comments/:comment_id` to delete comments. Upon success returns 204 (no content).
+DELETE `/api/comments/:comment_id` to delete comments.
+
+A successful deletion returns a status code of 204 (no content). To delete a comment you must send a valid **access token** (see _Authentication_).
 
 ## Topics
 
-GET `/api/topics` to get topics.
-
-POST `/api/topics` to add new topics.
+- GET `/api/topics` to get topics.
+- POST `/api/topics` to add new topics.
 
 Example request body to POST a new topic:
 
@@ -174,6 +181,8 @@ Example request body to POST a new topic:
     description: "growing stuff",
 }
 ```
+
+Any user can POST a topic, but once created they cannot be deleted via the API.
 
 ## Users
 
