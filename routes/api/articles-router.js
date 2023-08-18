@@ -14,7 +14,7 @@ const { verifyJWT } = require("../../middleware/verifyJWT");
 
 const articlesRouter = require("express").Router();
 
-articlesRouter.route("/").get(getArticles).post(postArticles);
+articlesRouter.route("/").get(getArticles).post(verifyJWT, postArticles);
 
 articlesRouter
   .route("/:article_id")

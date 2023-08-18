@@ -58,8 +58,13 @@ function postArticles(req, res, next) {
     .then(() => {
       return selectUser(req.body.author);
     })
-    .then(() => {
-      return insertArticle(req.body);
+    .then((user) => {
+      if (user.username !== req.user) {
+        return Promise.reject({
+          status: 403,
+          msg: "Authenticated user does not match article author",
+        });
+      } else return insertArticle(req.body);
     })
     .then((article_id) => {
       return selectArticleAndCommentCountById(article_id);

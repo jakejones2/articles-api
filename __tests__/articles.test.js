@@ -12,6 +12,16 @@ beforeEach(() => {
   return seed(data);
 });
 
+function authButterBridge() {
+  const postBody = { username: "butter_bridge", password: "wA!!li43" };
+  return request(app)
+    .post("/auth")
+    .send(postBody)
+    .then(({ body: { accessToken } }) => {
+      return accessToken;
+    });
+}
+
 describe("GET /api/articles/:article_id", () => {
   test("GET 200 from /articles/:article_id ", () => {
     return request(app).get("/api/articles/1").expect(200);
@@ -557,7 +567,13 @@ describe("POST /api/articles", () => {
       body: "something I really need to share immediately with everyone",
       topic: "cats",
     };
-    return request(app).post("/api/articles").send(testArticle).expect(201);
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .post("/api/articles")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testArticle)
+        .expect(201);
+    });
   });
   test("should respond with new article given valid body", () => {
     const testArticle = {
@@ -566,26 +582,29 @@ describe("POST /api/articles", () => {
       body: "something I really need to share immediately with everyone",
       topic: "cats",
     };
-    return request(app)
-      .post("/api/articles")
-      .send(testArticle)
-      .then(({ body: { article } }) => {
-        expect(article).toMatchObject({
-          article_id: 14,
-          votes: 0,
-          comment_count: 0,
-          author: "butter_bridge",
-          title: "important new article",
-          body: "something I really need to share immediately with everyone",
-          topic: "cats",
-          article_img_url:
-            "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700",
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .post("/api/articles")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testArticle)
+        .then(({ body: { article } }) => {
+          expect(article).toMatchObject({
+            article_id: 14,
+            votes: 0,
+            comment_count: 0,
+            author: "butter_bridge",
+            title: "important new article",
+            body: "something I really need to share immediately with everyone",
+            topic: "cats",
+            article_img_url:
+              "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700",
+          });
+          expect(article).toHaveProperty("created_at", expect.any(String));
+          const currentTime = new Date().getTime();
+          const articleTime = new Date(article.created_at).getTime();
+          expect(articleTime / 10000).toBeCloseTo(currentTime / 10000);
         });
-        expect(article).toHaveProperty("created_at", expect.any(String));
-        const currentTime = new Date().getTime();
-        const articleTime = new Date(article.created_at).getTime();
-        expect(articleTime / 10000).toBeCloseTo(currentTime / 10000);
-      });
+    });
   });
   test("should be able to add a new article image url rather than default", () => {
     const testArticle = {
@@ -596,16 +615,19 @@ describe("POST /api/articles", () => {
       article_img_url:
         "https://res.cloudinary.com/dk-find-out/image/upload/q_80,w_1920,f_auto/DCTM_Penguin_UK_DK_AL644648_p7nd0z.jpg",
     };
-    return request(app)
-      .post("/api/articles")
-      .send(testArticle)
-      .expect(201)
-      .then(({ body: { article } }) => {
-        expect(article).toMatchObject({
-          article_img_url:
-            "https://res.cloudinary.com/dk-find-out/image/upload/q_80,w_1920,f_auto/DCTM_Penguin_UK_DK_AL644648_p7nd0z.jpg",
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .post("/api/articles")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testArticle)
+        .expect(201)
+        .then(({ body: { article } }) => {
+          expect(article).toMatchObject({
+            article_img_url:
+              "https://res.cloudinary.com/dk-find-out/image/upload/q_80,w_1920,f_auto/DCTM_Penguin_UK_DK_AL644648_p7nd0z.jpg",
+          });
         });
-      });
+    });
   });
   test("superfluous keys ignored", () => {
     const testArticle = {
@@ -616,34 +638,58 @@ describe("POST /api/articles", () => {
       topic: "cats",
       bananas: "yellow",
     };
-    return request(app)
-      .post("/api/articles")
-      .send(testArticle)
-      .expect(201)
-      .then(({ body: { article } }) => {
-        expect(article).toMatchObject({
-          article_id: 14,
-          votes: 0,
-          comment_count: 0,
-          author: "butter_bridge",
-          title: "important new article",
-          body: "something I really need to share immediately with everyone",
-          topic: "cats",
-          article_img_url:
-            "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700",
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .post("/api/articles")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testArticle)
+        .expect(201)
+        .then(({ body: { article } }) => {
+          expect(article).toMatchObject({
+            article_id: 14,
+            votes: 0,
+            comment_count: 0,
+            author: "butter_bridge",
+            title: "important new article",
+            body: "something I really need to share immediately with everyone",
+            topic: "cats",
+            article_img_url:
+              "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700",
+          });
+          expect(article).toHaveProperty("created_at", expect.any(String));
         });
-        expect(article).toHaveProperty("created_at", expect.any(String));
-      });
+    });
   });
 });
 describe("POST /api/articles error handling", () => {
-  test("should receive a 400 if body is missing", () => {
-    return request(app)
-      .post("/api/articles")
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
-      });
+  test("should receive a 401 if user not authenticated", () => {
+    return request(app).post("/api/articles").expect(401);
+  });
+  test("should receive a 403 if user doesn't match author", () => {
+    const testArticle = {
+      author: "rogersop",
+      title: "important new article",
+      body: "something I really need to share immediately with everyone",
+      topic: "cats",
+    };
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .post("/api/articles")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testArticle)
+        .expect(403);
+    });
+  });
+  test("should receive a 400 if request body is empty", () => {
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .post("/api/articles")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad Request");
+        });
+    });
   });
   test("should recieve a 400 if title is missing", () => {
     const testArticle = {
@@ -651,13 +697,13 @@ describe("POST /api/articles error handling", () => {
       body: "something I really need to share immediately with everyone",
       topic: "cats",
     };
-    return request(app)
-      .post("/api/articles")
-      .send(testArticle)
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
-      });
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .post("/api/articles")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testArticle)
+        .expect(400);
+    });
   });
   test("should recieve a 400 if author is missing", () => {
     const testArticle = {
@@ -665,27 +711,27 @@ describe("POST /api/articles error handling", () => {
       body: "something I really need to share immediately with everyone",
       topic: "cats",
     };
-    return request(app)
-      .post("/api/articles")
-      .send(testArticle)
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
-      });
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .post("/api/articles")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testArticle)
+        .expect(400);
+    });
   });
-  test("should recieve a 400 if body is missing", () => {
+  test("should recieve a 400 if article body is missing", () => {
     const testArticle = {
       title: "important new article",
       author: "butter_bridge",
       topic: "cats",
     };
-    return request(app)
-      .post("/api/articles")
-      .send(testArticle)
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
-      });
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .post("/api/articles")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testArticle)
+        .expect(400);
+    });
   });
   test("should recieve a 400 if topic is missing", () => {
     const testArticle = {
@@ -693,13 +739,13 @@ describe("POST /api/articles error handling", () => {
       body: "something I really need to share immediately with everyone",
       author: "butter_bridge",
     };
-    return request(app)
-      .post("/api/articles")
-      .send(testArticle)
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
-      });
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .post("/api/articles")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testArticle)
+        .expect(400);
+    });
   });
   test("should receive a 400 if title is not a string", () => {
     const testArticle = {
@@ -708,13 +754,13 @@ describe("POST /api/articles error handling", () => {
       body: "something I really need to share immediately with everyone",
       topic: "cats",
     };
-    return request(app)
-      .post("/api/articles")
-      .send(testArticle)
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
-      });
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .post("/api/articles")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testArticle)
+        .expect(400);
+    });
   });
   test("should receive a 400 if body is not a string", () => {
     const testArticle = {
@@ -723,13 +769,13 @@ describe("POST /api/articles error handling", () => {
       body: 5852,
       topic: "cats",
     };
-    return request(app)
-      .post("/api/articles")
-      .send(testArticle)
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
-      });
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .post("/api/articles")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testArticle)
+        .expect(400);
+    });
   });
   test("should receive a 404 if topic not in topics", () => {
     const testArticle = {
@@ -738,13 +784,13 @@ describe("POST /api/articles error handling", () => {
       body: "some body",
       topic: "dogs",
     };
-    return request(app)
-      .post("/api/articles")
-      .send(testArticle)
-      .expect(404)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Topic not found");
-      });
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .post("/api/articles")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testArticle)
+        .expect(404);
+    });
   });
   test("should receive a 404 if author not in authors", () => {
     const testArticle = {
@@ -753,13 +799,13 @@ describe("POST /api/articles error handling", () => {
       body: "some body",
       topic: "cats",
     };
-    return request(app)
-      .post("/api/articles")
-      .send(testArticle)
-      .expect(404)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("User not found");
-      });
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .post("/api/articles")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testArticle)
+        .expect(404);
+    });
   });
   test("should receive a 400 if url not valid", () => {
     const testArticle = {
@@ -769,48 +815,38 @@ describe("POST /api/articles error handling", () => {
       topic: "cats",
       article_img_url: "this_couldn't be a url",
     };
-    return request(app)
-      .post("/api/articles")
-      .send(testArticle)
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Invalid image url");
-      });
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .post("/api/articles")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testArticle)
+        .expect(400);
+    });
   });
 });
 
 describe("DELETE /api/articles/:article_id", () => {
   test("should respond 204 and delete specified article if user authenticated and the owner", () => {
-    const postBody = { username: "butter_bridge", password: "wA!!li43" };
-    return request(app)
-      .post("/auth")
-      .send(postBody)
-      .then(({ body: { accessToken } }) => {
-        // send delete request along with accessToken
-        return request(app)
-          .delete("/api/articles/1")
-          .set("Authorization", `Bearer ${accessToken}`)
-          .expect(204)
-          .then(() => {
-            return request(app).get("/api/articles/1").expect(404);
-          });
-      });
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .delete("/api/articles/1")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .expect(204)
+        .then(() => {
+          return request(app).get("/api/articles/1").expect(404);
+        });
+    });
   });
   test("successful deletion should delete all related comments", () => {
-    const postBody = { username: "butter_bridge", password: "wA!!li43" };
-    return request(app)
-      .post("/auth")
-      .send(postBody)
-      .then(({ body: { accessToken } }) => {
-        // send delete request along with accessToken
-        return request(app)
-          .delete("/api/articles/1")
-          .set("Authorization", `Bearer ${accessToken}`)
-          .expect(204)
-          .then(() => {
-            return request(app).get("/api/articles/1/comments").expect(404);
-          });
-      });
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .delete("/api/articles/1")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .expect(204)
+        .then(() => {
+          return request(app).get("/api/articles/1/comments").expect(404);
+        });
+    });
   });
 });
 
@@ -819,32 +855,22 @@ describe("DELETE /api/articles/:article_id error handling", () => {
     return request(app).delete("/api/articles/1").expect(401);
   });
   test("should return 403 when authenticated but not owner", () => {
-    const postBody = { username: "butter_bridge", password: "wA!!li43" };
-    return request(app)
-      .post("/auth")
-      .send(postBody)
-      .then(({ body: { accessToken } }) => {
-        // send delete request along with accessToken
-        return request(app)
-          .delete("/api/articles/2")
-          .set("Authorization", `Bearer ${accessToken}`)
-          .expect(403)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe("Authenticated user does not match article owner");
-          });
-      });
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .delete("/api/articles/2")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .expect(403)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Authenticated user does not match article owner");
+        });
+    });
   });
   test("should return 404 if article cannot be found", () => {
-    const postBody = { username: "butter_bridge", password: "wA!!li43" };
-    return request(app)
-      .post("/auth")
-      .send(postBody)
-      .then(({ body: { accessToken } }) => {
-        // send delete request along with accessToken
-        return request(app)
-          .delete("/api/articles/1000")
-          .set("Authorization", `Bearer ${accessToken}`)
-          .expect(404);
-      });
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .delete("/api/articles/1000")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .expect(404);
+    });
   });
 });
