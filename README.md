@@ -215,9 +215,9 @@ A succesful deletion will result in a reponse status of 204 (no content). You mu
 - GET `/refresh` to receive a new **access token**.
 - GET `/logout` to clear the **refresh token cookie**.
 
-Access tokens identify you as a particular user, and one is required to perform any operation that modifies user data on the system.
+Access tokens identify you as a particular user, and are required to perform any operation that modifies user data on the system.
 
-Send a POST request to `/auth` to create a token. The POST body must include a valid username and password associated with a user that has **already been created** via a POST request to `/api/users`. Users are stored **indefinitely** on the server database, but all access and refresh tokens **expire**. Consider a POST to `/auth` as 'logging in' for a session.
+Send a POST request to `/auth` to create a token. The POST body must include a valid username and password associated with a user that has **already been created** via a POST request to `/api/users`. Users are stored **indefinitely** on the server database, but all access and refresh tokens **expire**. Consider a POST to `/auth` as _logging in_ for a session.
 
 Example POST body:
 
@@ -236,8 +236,8 @@ Example auth header:
 Authorization: Bearer <token>
 ```
 
-After sending a successful POST request to `/auth`, you will also receive a secure, http-only cookie containing a **refresh token**. This refresh token allows you to send GET requests to `/refresh` to receive a **new** access token. Access tokens will expire after one hour, whereas refresh tokens last one day, meaning frequent GET requests to `/refresh` can save you submitting and thus _exposing_ credentials regularly. Once the refresh token expires, you will have to log in again at POST `/auth`.
+After sending a successful POST request to `/auth`, you will also receive a secure, http-only cookie containing a **refresh token**. This refresh token allows you to send GET requests to `/refresh` and receive a **new** access token. Access tokens will expire after one hour, whereas refresh tokens last one day, meaning frequent GET requests to `/refresh` can save you submitting (and exposing) credentials regularly. Once the refresh token expires, you will have to log in again at POST `/auth`.
 
 To **log out**, send a GET request to `/logout`. This will delete the refresh token both server side and on the client cookie.
 
-All passwords are **hashed** and **salted** before being stored. There is currently no implementation of a password recovery system, so keep this information safe! Refresh token cookies are set to secure, so will **only be sent over HTTPS.**
+All passwords are **hashed** and **salted** before being stored. There is currently no implementation of a password recovery system, so keep this information safe! Refresh token cookies are set to secure, and so will **only be sent over HTTPS.**
