@@ -1,4 +1,3 @@
-const articlesRouter = require("express").Router();
 const {
   getArticles,
   getArticleById,
@@ -6,10 +5,14 @@ const {
   postArticles,
   deleteArticleById,
 } = require("../../controllers/api/articles-controller");
+
 const {
   getComments,
   postComment,
 } = require("../../controllers/api/comments-controller");
+const { verifyJWT } = require("../../middleware/verifyJWT");
+
+const articlesRouter = require("express").Router();
 
 articlesRouter.route("/").get(getArticles).post(postArticles);
 
@@ -17,7 +20,7 @@ articlesRouter
   .route("/:article_id")
   .get(getArticleById)
   .patch(patchArticleById)
-  .delete(deleteArticleById);
+  .delete(verifyJWT, deleteArticleById);
 
 articlesRouter
   .route("/:article_id/comments")

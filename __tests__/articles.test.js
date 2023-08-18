@@ -780,31 +780,71 @@ describe("POST /api/articles error handling", () => {
 });
 
 describe("DELETE /api/articles/:article_id", () => {
-  test("should return 204 when given valid article_id", () => {
-    return request(app).delete("/api/articles/1").expect(204);
-  });
-  test("should delete specified article", () => {
+  test("should respond 204 and delete specified article if user authenticated and the owner", () => {
+    const postBody = { username: "butter_bridge", password: "wA!!li43" };
     return request(app)
-      .delete("/api/articles/1")
-      .then(() => {
-        return request(app).get("/api/articles/1").expect(404);
+      .post("/auth")
+      .send(postBody)
+      .then(({ body: { accessToken } }) => {
+        // send delete request along with accessToken
+        return request(app)
+          .delete("/api/articles/1")
+          .set("Authorization", `Bearer ${accessToken}`)
+          .expect(204)
+          .then(() => {
+            return request(app).get("/api/articles/1").expect(404);
+          });
       });
   });
-  test("should delete all related comments", () => {
+  test("successful deletion should delete all related comments", () => {
+    const postBody = { username: "butter_bridge", password: "wA!!li43" };
     return request(app)
-      .delete("/api/articles/1")
-      .then(() => {
-        return request(app).get("/api/articles/1/comments").expect(404);
+      .post("/auth")
+      .send(postBody)
+      .then(({ body: { accessToken } }) => {
+        // send delete request along with accessToken
+        return request(app)
+          .delete("/api/articles/1")
+          .set("Authorization", `Bearer ${accessToken}`)
+          .expect(204)
+          .then(() => {
+            return request(app).get("/api/articles/1/comments").expect(404);
+          });
       });
   });
 });
+
 describe("DELETE /api/articles/:article_id error handling", () => {
-  test("sohuld return 404 if article cannot be found", () => {
+  test("should return 401 when not authenticated", () => {
+    return request(app).delete("/api/articles/1").expect(401);
+  });
+  test("should return 403 when authenticated but not owner", () => {
+    const postBody = { username: "butter_bridge", password: "wA!!li43" };
     return request(app)
-      .delete("/api/articles/1000")
-      .expect(404)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Article not found");
+      .post("/auth")
+      .send(postBody)
+      .then(({ body: { accessToken } }) => {
+        // send delete request along with accessToken
+        return request(app)
+          .delete("/api/articles/2")
+          .set("Authorization", `Bearer ${accessToken}`)
+          .expect(403)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Authenticated user does not match article owner");
+          });
+      });
+  });
+  test("should return 404 if article cannot be found", () => {
+    const postBody = { username: "butter_bridge", password: "wA!!li43" };
+    return request(app)
+      .post("/auth")
+      .send(postBody)
+      .then(({ body: { accessToken } }) => {
+        // send delete request along with accessToken
+        return request(app)
+          .delete("/api/articles/1000")
+          .set("Authorization", `Bearer ${accessToken}`)
+          .expect(404);
       });
   });
 });

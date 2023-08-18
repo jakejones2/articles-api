@@ -71,7 +71,18 @@ function postArticles(req, res, next) {
 }
 
 function deleteArticleById(req, res, next) {
-  removeArticle(req.params.article_id)
+  selectArticleById(req.params.article_id)
+    .then((article) => {
+      if (article.author !== req.user) {
+        return Promise.reject({
+          status: 403,
+          msg: "Authenticated user does not match article owner",
+        });
+      } else return Promise.resolve();
+    })
+    .then(() => {
+      return removeArticle(req.params.article_id);
+    })
     .then(() => {
       res.sendStatus(204);
     })
