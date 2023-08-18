@@ -116,7 +116,7 @@ Example request body to POST an article:
 }
 ```
 
-An `author` must correspond to a `username` in the users table, and the topic to an existing topic. If these fields represent **new data**, you must first add them to their respective tables by sending POST requests to `/api/users` and `/api/topics`. You must also send an **access token** in the request header authenticating you as the username entered. See _Authorization_ for more information.
+An `author` must correspond to a `username` in the users table, and the `topic` to an existing `topic`. If these fields represent **new data**, you must first add them to their respective tables by sending POST requests to `/api/users` and `/api/topics`. You must also send an **access token** in the request header authenticating you as the username entered. See _Authorization_ for more information.
 
 ### PATCH
 
