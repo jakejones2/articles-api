@@ -3,6 +3,7 @@ const request = require("supertest");
 const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const data = require("../db/data/test-data");
+const { authButterBridge } = require("../test-utils");
 
 afterAll(() => {
   return db.end();
@@ -11,16 +12,6 @@ afterAll(() => {
 beforeEach(() => {
   return seed(data);
 });
-
-function authButterBridge() {
-  const postBody = { username: "butter_bridge", password: "wA!!li43" };
-  return request(app)
-    .post("/auth")
-    .send(postBody)
-    .then(({ body: { accessToken } }) => {
-      return accessToken;
-    });
-}
 
 describe("GET /api/articles/:article_id", () => {
   test("GET 200 from /articles/:article_id ", () => {

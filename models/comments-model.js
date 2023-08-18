@@ -28,11 +28,20 @@ function selectComments(article_id, { limit = 10, p = 1 }) {
     });
 }
 
-function insertComment(article_id, body, users) {
+function selectComment(comment_id) {
+  return db
+    .query("SELECT * FROM comments WHERE comment_id = $1", [comment_id])
+    .then(({ rows }) => {
+      if (!rows.length) {
+        return Promise.reject({ status: 404, msg: "Comment not found" });
+      }
+      return rows[0];
+    });
+}
+
+function insertComment(article_id, body) {
   if (typeof body !== "object" || typeof body.body !== "string") {
     return Promise.reject({ status: 400, msg: "Bad Request" });
-  } else if (!users.includes(body.username)) {
-    return Promise.reject({ status: 404, msg: "User not found" });
   } else {
     const comments = [[body.body, body.username, article_id, 0, new Date()]];
     const queryString = format(
@@ -82,6 +91,7 @@ function updateComment(increase, comment_id) {
 }
 module.exports = {
   selectComments,
+  selectComment,
   insertComment,
   removeComment,
   updateComment,

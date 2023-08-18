@@ -17,6 +17,7 @@ function selectUsers() {
 }
 
 function selectUser(username) {
+  if (!username) return Promise.reject({ status: 400, msg: "Bad Request" });
   return db
     .query("SELECT username, name, avatar_url FROM users WHERE username = $1", [
       username,

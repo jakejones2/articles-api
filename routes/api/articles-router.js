@@ -25,6 +25,6 @@ articlesRouter
 articlesRouter
   .route("/:article_id/comments")
   .get(getComments)
-  .post(postComment);
+  .post(verifyJWT, postComment);
 
 module.exports = articlesRouter;

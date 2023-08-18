@@ -3,8 +3,9 @@ const {
   insertComment,
   removeComment,
   updateComment,
+  selectComment,
 } = require("../../models/comments-model");
-const { selectUsernames } = require("../../models/users-model");
+const { selectUser } = require("../../models/users-model");
 const {
   validatePaginationQueries,
 } = require("../../models/validators/article-validators");
@@ -21,21 +22,32 @@ function getComments(req, res, next) {
 }
 
 function postComment(req, res, next) {
-  selectUsernames()
-    .then((rows) => {
-      return rows.map((row) => row.username);
+  selectUser(req.body.username)
+    .then((user) => {
+      if (req.body.username !== req.user) {
+        return Promise.reject({
+          status: 403,
+          msg: "Authenticated user does not match comment author",
+        });
+      }
+      return insertComment(req.params.article_id, req.body, user);
     })
-    .then((usersList) => {
-      insertComment(req.params.article_id, req.body, usersList)
-        .then((comment) => {
-          res.status(201).send({ comment });
-        })
-        .catch(next);
-    });
+    .then((comment) => {
+      res.status(201).send({ comment });
+    })
+    .catch(next);
 }
 
 function deleteComment(req, res, next) {
-  removeComment(req.params.comment_id)
+  selectComment(req.params.comment_id)
+    .then((comment) => {
+      if (comment.author !== req.user) {
+        return Promise.reject({
+          status: 403,
+          msg: "Authenticated user does not match comment author",
+        });
+      } else return removeComment(req.params.comment_id);
+    })
     .then(() => {
       res.sendStatus(204);
     })

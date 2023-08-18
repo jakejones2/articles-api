@@ -3,6 +3,7 @@ const request = require("supertest");
 const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const data = require("../db/data/test-data");
+const { authButterBridge } = require("../test-utils");
 
 afterAll(() => {
   return db.end();
@@ -101,6 +102,7 @@ describe("GET /api/articles/:article_id/comments pagination", () => {
       });
   });
 });
+
 describe("GET /api/articles/:article_id/comments pagination error handling", () => {
   test("if page out of bounds, return 404", () => {
     return request(app)
@@ -166,10 +168,13 @@ describe("POST /api/articles/:article_id/comments", () => {
       username: "butter_bridge",
       body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
     };
-    return request(app)
-      .post("/api/articles/1/comments")
-      .send(testComment)
-      .expect(201);
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .post("/api/articles/1/comments")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testComment)
+        .expect(201);
+    });
   });
   test("receive 201 when POST body has extra information", () => {
     const testComment = {
@@ -177,28 +182,35 @@ describe("POST /api/articles/:article_id/comments", () => {
       body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
       randomkey: "how did this get here",
     };
-    return request(app)
-      .post("/api/articles/1/comments")
-      .send(testComment)
-      .expect(201);
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .post("/api/articles/1/comments")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testComment)
+        .expect(201);
+    });
   });
   test("receive posted comment when POST /api/articles/:article_id/comments", () => {
     const testComment = {
       username: "butter_bridge",
       body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
     };
-    return request(app)
-      .post("/api/articles/1/comments")
-      .send(testComment)
-      .then(({ body: { comment } }) => {
-        expect(comment).toMatchObject({
-          author: "butter_bridge",
-          body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
-          article_id: 1,
-          votes: 0,
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .post("/api/articles/1/comments")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testComment)
+        .expect(201)
+        .then(({ body: { comment } }) => {
+          expect(comment).toMatchObject({
+            author: "butter_bridge",
+            body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            article_id: 1,
+            votes: 0,
+          });
+          expect(comment).toHaveProperty("created_at", expect.any(String));
         });
-        expect(comment).toHaveProperty("created_at", expect.any(String));
-      });
+    });
   });
   test("posted comment ignores extra keys in body", () => {
     const testComment = {
@@ -206,145 +218,224 @@ describe("POST /api/articles/:article_id/comments", () => {
       body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
       favouriteFruit: "banana",
     };
-    return request(app)
-      .post("/api/articles/1/comments")
-      .send(testComment)
-      .then(({ body: { comment } }) => {
-        expect(comment).toMatchObject({
-          author: "butter_bridge",
-          body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
-          article_id: 1,
-          votes: 0,
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .post("/api/articles/1/comments")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testComment)
+        .expect(201)
+        .then(({ body: { comment } }) => {
+          expect(comment).toMatchObject({
+            author: "butter_bridge",
+            body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            article_id: 1,
+            votes: 0,
+          });
+          expect(comment).toHaveProperty("created_at", expect.any(String));
+          expect(comment).not.toHaveProperty("favouriteFruit");
         });
-        expect(comment).toHaveProperty("created_at", expect.any(String));
-        expect(comment).not.toHaveProperty("favouriteFruit");
-      });
+    });
   });
 });
 
 describe("POST api/articles/:article_id/comments error handling", () => {
-  test("receive 404 if username not in users table", () => {
+  test("receive 401 if request not authenticated", () => {
     const testComment = {
-      username: "bob",
+      username: "butter_bridge",
       body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
     };
     return request(app)
       .post("/api/articles/1/comments")
       .send(testComment)
-      .expect(404)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("User not found");
-      });
+      .expect(401);
+  });
+  test("receive 403 if username does not match authenticated user", () => {
+    const testComment = {
+      username: "rogersop",
+      body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+    };
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .post("/api/articles/1/comments")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testComment)
+        .expect(403)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Authenticated user does not match comment author");
+        });
+    });
+  });
+  test("receive 404 if username not in users table", () => {
+    const testComment = {
+      username: "bob",
+      body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+    };
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .post("/api/articles/1/comments")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testComment)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("User not found");
+        });
+    });
   });
   test("receive 400 if body is not a string", () => {
     const testComment = {
       username: "butter_bridge",
       body: true,
     };
-    return request(app)
-      .post("/api/articles/1/comments")
-      .send(testComment)
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
-      });
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .post("/api/articles/1/comments")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testComment)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad Request");
+        });
+    });
   });
   test("receive 400 if username is missing", () => {
     const testComment = {
       body: true,
     };
-    return request(app)
-      .post("/api/articles/1/comments")
-      .send(testComment)
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
-      });
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .post("/api/articles/1/comments")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testComment)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad Request");
+        });
+    });
   });
   test("receive 400 if body is missing", () => {
     const testComment = {
       username: "butter_bridge",
     };
-    return request(app)
-      .post("/api/articles/1/comments")
-      .send(testComment)
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
-      });
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .post("/api/articles/1/comments")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testComment)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad Request");
+        });
+    });
   });
   test("receive 400 if article_id is invalid", () => {
     const testComment = {
       username: "butter_bridge",
       body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
     };
-    return request(app)
-      .post("/api/articles/kiwi/comments")
-      .send(testComment)
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
-      });
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .post("/api/articles/pancake/comments")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testComment)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad Request");
+        });
+    });
   });
   test("receive 404 if article_id is out of range:", () => {
     const testComment = {
       username: "butter_bridge",
       body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
     };
-    return request(app)
-      .post("/api/articles/10000/comments")
-      .send(testComment)
-      .expect(404)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Item not found");
-      });
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .post("/api/articles/10000/comments")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testComment)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Item not found");
+        });
+    });
   });
   test("receive 400 if POST body is not json", () => {
     const testComment = "apple";
-    return request(app)
-      .post("/api/articles/1/comments")
-      .send(testComment)
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
-      });
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .post("/api/articles/1/comments")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testComment)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad Request");
+        });
+    });
   });
 });
 
 describe("DELETE /api/comments/:comment_id", () => {
   test("DELETE 204 from /api/comments/:comment_id", () => {
-    return request(app).delete("/api/comments/1").expect(204);
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .delete("/api/comments/1")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .expect(204);
+    });
   });
   test("DELETE comments deletes comment", () => {
-    return request(app)
-      .delete("/api/comments/1")
-      .then(() => {
-        return request(app)
-          .get("/api/articles/9/comments")
-          .expect(200)
-          .then(({ body: { comments } }) => {
-            // used to be two comments, see data
-            expect(comments.length).toBe(1);
-          });
-      });
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .delete("/api/comments/1")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .then(() => {
+          return request(app)
+            .get("/api/articles/9/comments")
+            .expect(200)
+            .then(({ body: { comments } }) => {
+              // used to be two comments, see data
+              expect(comments.length).toBe(1);
+            });
+        });
+    });
   });
 });
 describe("DELETE /api/comments/:comment_id error handling", () => {
+  test("Returns 401 if use not authenticated", () => {
+    return request(app).delete("/api/comments/1").expect(401);
+  });
+  test("Returns 403 if comment author does not match authenticated user", () => {
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .delete("/api/comments/3")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .expect(403)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Authenticated user does not match comment author");
+        });
+    });
+  });
   test("Returns 404 if comment not found", () => {
-    return request(app)
-      .delete("/api/comments/1000")
-      .expect(404)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Comment not found");
-      });
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .delete("/api/comments/1000")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Comment not found");
+        });
+    });
   });
   test("Returns 400 if comment_id invalid", () => {
-    return request(app)
-      .delete("/api/comments/fryingpan")
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
-      });
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .delete("/api/comments/fryingpan")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad Request");
+        });
+    });
   });
 });
 
