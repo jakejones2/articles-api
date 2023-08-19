@@ -37,7 +37,7 @@ function authUser(req, res, next) {
         httpOnly: true,
         sameSite: "None",
         maxAge: 24 * 60 * 60 * 1000,
-        secure: false, // true in production, false in dev
+        secure: true, // true in production, false in dev
       });
       const accessToken = jwt.sign(
         { username },

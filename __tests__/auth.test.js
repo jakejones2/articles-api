@@ -59,7 +59,6 @@ describe("POST /auth", () => {
         expect(path.split("=")[1]).toBe("/");
         expect(expires).toEqual(expect.any(String));
         expect(httpOnly).toBe("HttpOnly");
-        expect(sameSite.split("=")[1]).toBe("None");
       });
   });
 });

@@ -14,7 +14,7 @@ function logoutController(req, res) {
       res.clearCookie("jwt", {
         httpOnly: true,
         sameSite: "None",
-        secure: false, // true in production, false in dev
+        secure: true, // true in production, false in dev
       });
       res.sendStatus(204);
     })
