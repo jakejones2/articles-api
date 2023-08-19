@@ -274,3 +274,9 @@ After sending a successful POST request to `/auth`, you will also receive a secu
 To **log out**, send a GET request to `/logout`. This will delete the refresh token both server side and on the client cookie.
 
 All passwords are **hashed** and **salted** before being stored. There is currently no implementation of a password recovery system, so keep this information safe! Refresh token cookies are set to secure, and so will **only be sent over HTTPS.**
+
+# Updates
+
+### 19/08/23 Issue with is-url-http module installation
+
+Seems this module doesn't install correctly with npm at the moment. The install freezes for a few minutes and then works fine. Either wait for it to work, or if you find this annoying, remove the dependency and build your own url validation system. It might be that an earlier version of node also fixes the bug.

@@ -35,7 +35,7 @@ jobs:
         with:
           timezoneLinux: "Europe/London"
       - name: run app tests
-        run: PGDATABASE=test_db PGUSER=test_user PGPASSWORD=test_password npm run test
+        run: ACCESS_TOKEN_SECRET=${{secrets.ACCESS_TOKEN_SECRET}} REFRESH_TOKEN_SECRET=${{secrets.REFRESH_TOKEN_SECRET}} PGDATABASE=test_db PGUSER=test_user PGPASSWORD=test_password npm run test
   test-app-live:
     needs: test-app
     runs-on: ubuntu-latest
@@ -49,4 +49,4 @@ jobs:
         with:
           timezoneLinux: "Europe/London"
       - name: run app tests live db
-        run: NODE_ENV=production DATABASE_URL=${{secrets.DATABASE_URL}} npm run test
+        run: NODE_ENV=production DATABASE_URL=${{secrets.DATABASE_URL}} ACCESS_TOKEN_SECRET=${{secrets.ACCESS_TOKEN_SECRET}} REFRESH_TOKEN_SECRET=${{secrets.REFRESH_TOKEN_SECRET}} npm run test
