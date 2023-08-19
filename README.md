@@ -102,6 +102,11 @@ To run all tests, enter `npm test` into the command line. Tests are held in the 
 
 To start a local server, enter `node listen.js` into the command line from the top-level directory. You should see a message saying 'Listening on port 9090'. This port can be changed by altering the `port` variable in `listen.js`.
 
+If you are getting unexpected behaviour with the authorization system, it might be because secure cookies are not getting sent over localhost. Try the following steps:
+
+- Navigate to `/controllers/auth-controller.js`, line 40, and set `secure` to `false`.
+- Repeat the above step in `/controllers/logout-controller.js`, on line 17.
+
 # Usage
 
 ## Articles
