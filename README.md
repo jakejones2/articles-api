@@ -48,7 +48,7 @@ git clone https://github.com/jakejones2/nc-news.git
 
 ### 3 - Install all dependencies
 
-Once you have cloned the repository, cd into the new directory and run `npm install` to install all dependencies.
+Once you have cloned the repository, cd into its top-level directory and run `npm install` to install all dependencies.
 
 ### 4 - Connect to databases with .env files
 
@@ -57,7 +57,7 @@ Next add two .env files for both testing and development:<br>
 - `.env.development`<br>
 - `.env.test`<br>
 
-These files should be in the **top level folder** in the repository.<br><br>
+These files should be in the **top-level folder** within the repository.<br><br>
 Inside these .env files you must set `PGDATABASE` to your testing and development database names respectively.<br>
 Make sure that these databases are created **before** running `npm run seed`.
 
@@ -73,14 +73,14 @@ This process **defines the names of your databases**. You will need to use these
 
 After creating two .env files for development and testing, use the following commands to seed local databases:
 
-1. `npm run setup-dbs`
-2. `npm run seed`
+- `npm run setup-dbs`
+- `npm run seed`
 
-The command `run setup-dbs` is included for convenience, and creates development and test databases called `nc-news` and `nc-news-test` respectively. You can skip this step if you have created your own databases. Remember that development and test database names are set in the corresponding `.env` files.
+The command `run setup-dbs` is included for convenience, and creates development and test databases called `nc-news` and `nc-news-test` respectively. You can skip this step if you have created your own databases. Remember that development and test database names are set in their corresponding `.env` files, so to use this command you must assign PGDATABASE to `nc-news` or `nc-news-test` accordingly.
 
 ### 6 - Add secrets to .env files
 
-Now we need to add two secret keys to each .env file that the authentication middleware can use to sign and decode JWTs. To create a secret key run the following command from the top-level directory of the repository:
+Now we need to add two **secret keys** to each `.env` file that the authentication middleware can use to sign and decode JWTs. To create a secret key run the following command from the top-level directory of the repository:
 
 ```
 node utils/generate-key.js
