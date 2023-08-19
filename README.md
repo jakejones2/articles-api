@@ -10,7 +10,7 @@ Try it out at https://nc-news-tm72.onrender.com/api !
 
 For a full breakdown of what this API offers, visit the link above and send a GET request to `/api`.
 
-A quick overview of GET endpoints is below. The remaining CRUD operations require **user authentication** (see _Authorization_ in _Usage_).
+A quick overview of GET endpoints is below. The remaining CRUD operations require **user authentication** (see _Authorization_ in the _Usage_ section).
 
 ### GET users, topics, articles and comments on the following endpoints:
 
@@ -88,7 +88,7 @@ Now we need to add two **secret keys** to each `.env` file that the authenticati
 node utils/generate-key.js
 ```
 
-This command will print a 128-character code to the console. Create **two** different codes for **each** `.env` file and assign them to the environment variables `ACCESS_TOKEN_SECRET` and `REFRESH_TOKEN_SECRET`. Below is an example `.env.test` file:
+This command will print a 128-character code to the console. Create **two different** codes for **each** `.env` file and assign them to the environment variables `ACCESS_TOKEN_SECRET` and `REFRESH_TOKEN_SECRET`. Below is an example finished `.env.test` file:
 
 ```
 PGDATABASE=nc_news_test
@@ -126,7 +126,7 @@ Accepts the following queries:
 - `limit` (int) determines the number of articles per page
 - `p` (int) determines the page
 
-When viewing **all** articles, results are sent as an array **without the body of each review**. To see the body of a review, send a GET request to `/api/articles/:article_id`.
+When viewing **all** articles, results are sent as an array **without the body of each article**. To see the body of an article, send a GET request to `/api/articles/:article_id`.
 
 ### POST
 
@@ -143,19 +143,19 @@ Example request body to POST an article:
 }
 ```
 
-An `author` must correspond to a `username` in the users table, and the `topic` to an existing `topic`. If these fields represent **new data**, you must first add them to their respective tables by sending POST requests to `/api/users` and `/api/topics`. You must also send an **access token** in the request header authenticating you as the username passed. See _Authorization_ for more information.
+An `author` must correspond to a `username` in the users table, and the `topic` to an existing `topic`. If these fields represent **new data**, you must first add them to their respective tables by sending POST requests to `/api/users` and `/api/topics`. You must also send an **access token** in the request header authenticating you as the author submitted. See _Authorization_ for more information.
 
 ### PATCH
 
-PATCH `/api/articles/:article_id` to increase an article's `votes` property.
+PATCH `/api/articles/:article_id` to increase or decrease an article's `votes` property.
 
-Example request body to PATCH an article and increase its votes by 3:
+Example request body to PATCH an article and decrease its votes by 3:
 
 ```
-{ inc_votes: 3 }
+{ inc_votes: -3 }
 ```
 
-You cannot increase or decrease an article's votes by more than 5. Each user can only vote once for a particular article; sending a subsequent PATCH request will result in a response status of 403. As voting is linked to users, you must send an **access token** in the request header (see _Authentication_).
+You cannot increase or decrease an article's votes by more than 5. Each user can only vote once for a particular article, and sending a subsequent PATCH request will result in a response status of 403. As voting is linked to users, you must send an **access token** in the request header (see _Authentication_).
 
 ### DELETE
 
@@ -172,7 +172,7 @@ GET `/api/articles/:article_id/comments` to get comments by `article_id`, pagina
 Accepts the following queries:
 
 - `limit` (int) determines the number of comments per page
-- `p` (int) determines the page
+- `p` (int) determines the page number
 
 ### POST
 
@@ -234,7 +234,7 @@ Example request body to POST a new user:
 }
 ```
 
-After creating a new user, you will **never again** get access to your password, so keep it safe! To modify content related to this user, gain an access token via POST `/auth` or GET `/refresh`, and add this to your **authorization header**. For more information, see _Authorization_.
+After creating a new user, you will **never again** get access to your password, so keep it safe! To modify content related to this user, gain an access token via POST `/auth` or GET `/refresh`, and add this to an **authorization header** on future requests. For more information, see _Authorization_.
 
 ### DELETE
 
@@ -261,9 +261,9 @@ Example POST body:
 }
 ```
 
-If the POST request to `/auth` is successful, you will receive a status of 200 and an access token in the response body. This access token needs to be added to an **authorization header** before making requests to protected endpoints.
+If the POST request to `/auth` is successful, you will receive a status code of 200 and an **access token** in the response body. This access token needs to be added to an **authorization header** before making requests to protected endpoints.
 
-Example auth header:
+Example authorization header:
 
 ```
 Authorization: Bearer <token>
