@@ -8,7 +8,13 @@ const {
 
 const seed = ({ topicData, userData, articleData, commentData }) => {
   return db
-    .query(`DROP TABLE IF EXISTS comments;`)
+    .query(`DROP TABLE IF EXISTS users_comments;`)
+    .then(() => {
+      return db.query(`DROP TABLE IF EXISTS users_articles;`);
+    })
+    .then(() => {
+      return db.query(`DROP TABLE IF EXISTS comments;`);
+    })
     .then(() => {
       return db.query(`DROP TABLE IF EXISTS articles;`);
     })
@@ -58,6 +64,22 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
         author VARCHAR REFERENCES users(username) NOT NULL,
         votes INT DEFAULT 0 NOT NULL,
         created_at TIMESTAMP DEFAULT NOW()
+      );`);
+    })
+    .then(() => {
+      return db.query(`
+      CREATE TABLE users_articles (
+        username VARCHAR REFERENCES users(username),
+        article_id INT REFERENCES articles(article_id),
+        CONSTRAINT users_articles_pk PRIMARY KEY(username,article_id)
+      );`);
+    })
+    .then(() => {
+      return db.query(`
+      CREATE TABLE users_comments (
+        username VARCHAR REFERENCES users(username),
+        comment_id INT REFERENCES comments(comment_id),
+        CONSTRAINT users_comments_pk PRIMARY KEY(username,comment_id)
       );`);
     })
     .then(() => {

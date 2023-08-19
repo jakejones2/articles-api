@@ -10,6 +10,8 @@ Try it out at https://nc-news-tm72.onrender.com/api !
 
 For a full breakdown of what this API offers, visit the link above and send a GET request to `/api`.
 
+A quick overview of GET endpoints is below. The remaining CRUD operations require **user authentication** (see _Authorization_ in _Usage_).
+
 ### GET users, topics, articles and comments on the following endpoints:
 
 - `/api/users`
