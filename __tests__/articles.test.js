@@ -713,7 +713,7 @@ describe("POST /api/articles", () => {
           const differenceMilliseconds = currentTime - articleTime;
           const hour = 1000 * 60 * 60;
           // regardless of timezone, difference should be under three seconds
-          expect(differenceMilliseconds % hour < 3000);
+          expect(differenceMilliseconds % hour < 3000).toBe(true);
         });
     });
   });
