@@ -36,6 +36,8 @@ To create your own version of this project, first install the following:
 - npm (min v9.7.2)
 - psql (min v14.8)
 
+Set up postgres by following instructions for your operating system. You should be able to create and access databases via the command line with `psql`.
+
 ### 2 - Clone the repo locally
 
 To clone the repository, choose and navigate to a parent directory, and enter the following into the command line:
@@ -65,20 +67,38 @@ For example, place the following inside `.env.development`:<br>
 PGDATABASE=my_dev_database
 ```
 
-This process **defines the names of your databases**. You will need to use these names to access the databases via psql and view data manually.
+This process **defines the names of your databases**. You will need to use these names to manually access data via psql at the command line.
 
 ### 5 - Seed local databases
 
-After creating two .env files for development and testing, run the following commands to seed local databases:
+After creating two .env files for development and testing, use the following commands to seed local databases:
 
 1. `npm run setup-dbs`
 2. `npm run seed`
 
-### 6 - Run all tests
+The command `run setup-dbs` is included for convenience, and creates development and test databases called `nc-news` and `nc-news-test` respectively. You can skip this step if you have created your own databases. Remember that development and test database names are set in the corresponding `.env` files.
+
+### 6 - Add secrets to .env files
+
+Now we need to add two secret keys to each .env file that the authentication middleware can use to sign and decode JWTs. To create a secret key run the following command from the top-level directory of the repository:
+
+```
+node utils/generate-key.js
+```
+
+This command will print a 128-character code to the console. Create two of these codes for each `.env` file and assign them to the environment variables `ACCESS_TOKEN_SECRET` and `REFRESH_TOKEN_SECRET`. Below is an example `.env.test` file:
+
+```
+PGDATABASE=nc_news_test
+ACCESS_TOKEN_SECRET=7a5c49401ab467d431b9b15340bf0ad5c0b5af6a6f548cb01ab1062673fea69b27cf9f7360134ec84e7c456ed0332f3e84ede87631ce11f03fe1f4fd9e0523d9
+REFRESH_TOKEN_SECRET=24ae15b5dfa7a2d38010a6a0081998fe47ad9a78ab4791067eab8b1db78fabe92386a11fbfada412e04ddd5ad2d9ad29c5673f29c69363175c578204849ffbc7
+```
+
+### 7 - Run all tests
 
 To run all tests, enter `npm test` into the command line. Tests are held in the `__tests__` directory.<br><br>Be aware that jest runs tests **concurrently** by default. This will lead to errors if not handled, as each test requires uninterrupted contact with the test db. If you intend to run tests directly with jest include the `--runInBand` flag.<br><br>**Husky** is installed by default to check that all tests pass before git commits. To change this behaviour, alter the `pre-commit` file in `.husky`.
 
-### 7 - Start a local server
+### 8 - Start a local server
 
 To start a local server, enter `node listen.js` into the command line from the top-level directory. You should see a message saying 'Listening on port 9090'. This port can be changed by altering the `port` variable in `listen.js`.
 
