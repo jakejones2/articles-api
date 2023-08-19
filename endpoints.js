@@ -104,7 +104,7 @@ module.exports = {
             "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
         },
       },
-      requestHeaderIncludes: null,
+      requestHeaderIncludes: { Authorization: "Bearer <accessToken>" },
       responseHeaderIncludes: null,
     },
     "DELETE /api/articles:article_id": {
@@ -163,7 +163,8 @@ module.exports = {
   },
   "/api/comments/:comment_id": {
     "PATCH /api/comments/:comment_id": {
-      description: "Updates the votes on a comment based on comment_id in url.",
+      description:
+        "Updates the votes on a comment based on comment_id in url. Cannot increment or decrement by more than 5 votes, and users can only vote once per article.",
       queries: [],
       successfulRequestBody: null,
       successfulResponseBody: {
@@ -175,7 +176,7 @@ module.exports = {
           created_at: "2020-04-06T12:17:00.000Z",
         },
       },
-      requestHeaderIncludes: null,
+      requestHeaderIncludes: { Authorization: "Bearer <accessToken>" },
       responseHeaderIncludes: null,
     },
     "DELETE /api/comments/:comment_id": {

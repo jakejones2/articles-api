@@ -155,7 +155,7 @@ Example request body to PATCH an article and increase its votes by 3:
 { inc_votes: 3 }
 ```
 
-All voting is anonymous and unlimited on this API - any user can send any number of PATCH requests. If you want this feature to be more serious and indicative of popularity, consider representing votes as a many-to-many relationship between users and articles/comments. This will require some refactoring!
+You cannot increase or decrease an article's votes by more than 5. Each user can only vote once for a particular article; sending a subsequent PATCH request will result in a response status of 403. As voting is linked to users, you must send an **access token** in the request header (see _Authentication_).
 
 ### DELETE
 
@@ -188,6 +188,12 @@ Example request body to POST a new comment:
 ```
 
 Like an article, you must be **authenticated** to post a comment, and must therefore send a valid **access token** (see _Authentication_).
+
+### PATCH
+
+PATCH `/api/comments/:comment_id` to update a comment's `vote` property.
+
+This functionality is identical to that concerning **articles** (see above).
 
 ### DELETE
 
