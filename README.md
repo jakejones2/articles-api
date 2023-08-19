@@ -78,7 +78,7 @@ After creating two .env files for development and testing, use the following com
 - `npm run setup-dbs`
 - `npm run seed`
 
-The command `run setup-dbs` is included for convenience, and creates development and test databases called `nc_news` and `nc_news_test` respectively. You can skip this step if you have created your own databases. Remember that development and test database names are set in their corresponding `.env` files, so to use this command you must assign PGDATABASE to `nc-news` or `nc-news-test` accordingly.
+The command `run setup-dbs` is included for convenience, and creates development and test databases called `nc_news` and `nc_news_test` respectively. You can skip this step if you have created your own databases. Remember that development and test database names are set in their corresponding `.env` files, so to use this command you must assign `PGDATABASE` to `nc-news` or `nc-news-test` accordingly.
 
 ### 6 - Add secrets to .env files
 
