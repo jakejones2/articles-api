@@ -4,7 +4,7 @@
 
 This RESTful API lets you store and retrieve json data for a news/social media website. It is built using node/express.js and PostgreSQL, and deployed on Render with ElephantSQL.
 
-Try it out at https://nc-news-tm72.onrender.com/api !
+Try it out at https://articles-api-zepx.onrender.com/api !
 
 ## Summary
 
