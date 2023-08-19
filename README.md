@@ -80,7 +80,7 @@ The command `run setup-dbs` is included for convenience, and creates development
 
 ### 6 - Add secrets to .env files
 
-Now we need to add two **secret keys** to each `.env` file that the authentication middleware can use to sign and decode JWTs. To create a secret key run the following command from the top-level directory of the repository:
+Now we need to add two **secret keys** to each `.env` file that the authentication middleware can use to sign and decode JWTs. To create a secret key, run the following command from the top-level directory of the repository:
 
 ```
 node utils/generate-key.js
