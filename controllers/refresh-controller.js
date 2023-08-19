@@ -2,7 +2,11 @@ const jwt = require("jsonwebtoken");
 
 const { selectUserByRefreshToken } = require("../models/users-model");
 
-require("dotenv").config();
+const ENV = process.env.NODE_ENV || "development";
+
+require("dotenv").config({
+  path: `${__dirname}/../.env.${ENV}`,
+});
 
 function refreshController(req, res) {
   if (!req.cookies?.jwt) {

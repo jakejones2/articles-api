@@ -1,5 +1,5 @@
 const request = require("supertest");
-const app = require("./app");
+const app = require("../app");
 
 function authButterBridge() {
   const postBody = { username: "butter_bridge", password: "wA!!li43" };

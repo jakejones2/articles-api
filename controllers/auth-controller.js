@@ -6,7 +6,11 @@ const {
   updateUserRefreshToken,
 } = require("../models/users-model");
 
-require("dotenv").config();
+const ENV = process.env.NODE_ENV || "development";
+
+require("dotenv").config({
+  path: `${__dirname}/../.env.${ENV}`,
+});
 
 function authUser(req, res, next) {
   const { username, password } = req.body;
