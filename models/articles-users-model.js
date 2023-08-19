@@ -4,7 +4,7 @@ const { selectUser } = require("./users-model");
 
 function checkNoUserArticleVotes(username, article_id) {
   return selectUser(username)
-    .then((user) => {
+    .then(() => {
       return db.query(
         "SELECT * FROM users_articles_votes WHERE username = $1 AND article_id = $2",
         [username, article_id]

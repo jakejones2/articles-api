@@ -5,6 +5,10 @@ const {
   updateComment,
   selectComment,
 } = require("../../models/comments-model");
+const {
+  checkNoUserCommentVotes,
+  insertUserCommentVotes,
+} = require("../../models/comments-users-model");
 
 const { selectUser } = require("../../models/users-model");
 
@@ -66,6 +70,12 @@ function deleteComment(req, res, next) {
 
 function patchComment(req, res, next) {
   validatePatchComment(req.body.inc_votes)
+    .then(() => {
+      return checkNoUserCommentVotes(req.user, req.params.comment_id);
+    })
+    .then(() => {
+      return insertUserCommentVotes(req.user, req.params.comment_id);
+    })
     .then(() => {
       return updateComment(req.body.inc_votes, req.params.comment_id);
     })

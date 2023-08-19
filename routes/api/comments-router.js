@@ -8,6 +8,6 @@ const { verifyJWT } = require("../../middleware/verifyJWT");
 commentsRouter
   .route("/:comment_id")
   .delete(verifyJWT, deleteComment)
-  .patch(patchComment);
+  .patch(verifyJWT, patchComment);
 
 module.exports = commentsRouter;

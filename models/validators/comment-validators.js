@@ -19,6 +19,11 @@ function validatePatchComment(increase) {
       status: 400,
       msg: 'Request body must be valid json and include a key of "inc_votes" of type number',
     });
+  } else if (Math.abs(increase) > 5) {
+    return Promise.reject({
+      status: 400,
+      msg: "You cannot increase or decrease a comment's votes by more than 5.",
+    });
   }
   return Promise.resolve();
 }

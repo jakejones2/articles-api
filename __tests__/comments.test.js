@@ -424,6 +424,7 @@ describe("DELETE /api/comments/:comment_id", () => {
     });
   });
 });
+
 describe("DELETE /api/comments/:comment_id error handling", () => {
   test("Returns 401 if use not authenticated", () => {
     return request(app).delete("/api/comments/1").expect(401);
@@ -468,137 +469,234 @@ describe("DELETE /api/comments/:comment_id error handling", () => {
 describe("PATCH /api/comments/:comment_id", () => {
   test("responds with 200 when given valid body", () => {
     const testBody = { inc_votes: 1 };
-    return request(app).patch("/api/comments/1").send(testBody).expect(200);
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .patch("/api/comments/1")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testBody)
+        .expect(200);
+    });
   });
   test("responds with updated comment when given valid body", () => {
     const testBody = { inc_votes: 1 };
-    return request(app)
-      .patch("/api/comments/1")
-      .send(testBody)
-      .then(({ body: { comment } }) => {
-        expect(comment).toMatchObject({
-          body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
-          votes: 17,
-          author: "butter_bridge",
-          article_id: 9,
-          created_at: "2020-04-06T12:17:00.000Z",
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .patch("/api/comments/1")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testBody)
+        .then(({ body: { comment } }) => {
+          expect(comment).toMatchObject({
+            body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            votes: 17,
+            author: "butter_bridge",
+            article_id: 9,
+            created_at: "2020-04-06T12:17:00.000Z",
+          });
         });
-      });
+    });
   });
   test("can decrement votes", () => {
     const testBody = { inc_votes: -1 };
-    return request(app)
-      .patch("/api/comments/1")
-      .send(testBody)
-      .then(({ body: { comment } }) => {
-        expect(comment).toMatchObject({
-          body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
-          votes: 15,
-          author: "butter_bridge",
-          article_id: 9,
-          created_at: "2020-04-06T12:17:00.000Z",
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .patch("/api/comments/1")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testBody)
+        .then(({ body: { comment } }) => {
+          expect(comment).toMatchObject({
+            body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            votes: 15,
+            author: "butter_bridge",
+            article_id: 9,
+            created_at: "2020-04-06T12:17:00.000Z",
+          });
         });
-      });
+    });
   });
   test("can increment votes more than one", () => {
-    const testBody = { inc_votes: 30 };
-    return request(app)
-      .patch("/api/comments/1")
-      .send(testBody)
-      .then(({ body: { comment } }) => {
-        expect(comment).toMatchObject({
-          body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
-          votes: 46,
-          author: "butter_bridge",
-          article_id: 9,
-          created_at: "2020-04-06T12:17:00.000Z",
+    const testBody = { inc_votes: 5 };
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .patch("/api/comments/1")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testBody)
+        .then(({ body: { comment } }) => {
+          expect(comment).toMatchObject({
+            body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            votes: 21,
+            author: "butter_bridge",
+            article_id: 9,
+            created_at: "2020-04-06T12:17:00.000Z",
+          });
         });
-      });
+    });
   });
   test("returns 200 if extra keys in body", () => {
     const testBody = { inc_votes: 1, bananas: true };
-    return request(app)
-      .patch("/api/comments/1")
-      .send(testBody)
-      .expect(200)
-      .then(({ body: { comment } }) => {
-        expect(comment).toMatchObject({
-          body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
-          votes: 17,
-          author: "butter_bridge",
-          article_id: 9,
-          created_at: "2020-04-06T12:17:00.000Z",
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .patch("/api/comments/1")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testBody)
+        .expect(200)
+        .then(({ body: { comment } }) => {
+          expect(comment).toMatchObject({
+            body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            votes: 17,
+            author: "butter_bridge",
+            article_id: 9,
+            created_at: "2020-04-06T12:17:00.000Z",
+          });
         });
-      });
+    });
   });
 });
 describe("PATCH /api/comments/:comment_id error handling", () => {
-  test("returns 404 if comment cannot be found", () => {
-    const testBody = { inc_votes: 30 };
+  test("Returns 401 if not authorized", () => {
+    examplePatch = { inc_votes: 1 };
     return request(app)
-      .patch("/api/comments/900000")
-      .send(testBody)
-      .expect(404)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Comment not found");
-      });
-  });
-  test("returns 400 if body missing", () => {
-    return request(app)
-      .patch("/api/comments/1")
-      .expect(400)
+      .patch("/api/comments/5")
+      .send(examplePatch)
+      .expect(401)
       .then(({ body: { msg } }) => {
         expect(msg).toBe(
-          'Request body must be valid json and include a key of "inc_votes" of type number'
+          "You need to send an access token to complete this request"
         );
       });
+  });
+  test("Returns a 403 if already voted", () => {
+    const examplePatch = { inc_votes: 1 };
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .patch("/api/comments/1")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(examplePatch)
+        .then(() => {
+          return request(app)
+            .patch("/api/comments/1")
+            .set("Authorization", `Bearer ${accessToken}`)
+            .send(examplePatch)
+            .expect(403)
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("You have already voted for this comment");
+            });
+        });
+    });
+  });
+  test("Returns 400 if patch increase is greater than 5", () => {
+    const examplePatch = { inc_votes: 100 };
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .patch("/api/comments/5")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(examplePatch)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe(
+            "You cannot increase or decrease a comment's votes by more than 5."
+          );
+        });
+    });
+  });
+  test("Returns 400 if patch increase is less than -5", () => {
+    const examplePatch = { inc_votes: -6 };
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .patch("/api/comments/5")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(examplePatch)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe(
+            "You cannot increase or decrease a comment's votes by more than 5."
+          );
+        });
+    });
+  });
+  test("returns 404 if comment cannot be found", () => {
+    const testBody = { inc_votes: 3 };
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .patch("/api/comments/900000")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testBody)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Item not found");
+        });
+    });
+  });
+  test("returns 400 if body missing", () => {
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .patch("/api/comments/1")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe(
+            'Request body must be valid json and include a key of "inc_votes" of type number'
+          );
+        });
+    });
   });
   test("returns 400 if body has incorrect key", () => {
     const testBody = { bananas: 30 };
-    return request(app)
-      .patch("/api/comments/1")
-      .send(testBody)
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe(
-          'Request body must be valid json and include a key of "inc_votes" of type number'
-        );
-      });
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .patch("/api/comments/1")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testBody)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe(
+            'Request body must be valid json and include a key of "inc_votes" of type number'
+          );
+        });
+    });
   });
   test("returns 400 if increase not a number", () => {
     const testBody = { inc_votes: "bananas" };
-    return request(app)
-      .patch("/api/comments/1")
-      .send(testBody)
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe(
-          'Request body must be valid json and include a key of "inc_votes" of type number'
-        );
-      });
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .patch("/api/comments/1")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testBody)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe(
+            'Request body must be valid json and include a key of "inc_votes" of type number'
+          );
+        });
+    });
   });
   test("returns 400 if body malformed", () => {
     const testBody = "bananas";
-    return request(app)
-      .patch("/api/comments/1")
-      .send(testBody)
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe(
-          'Request body must be valid json and include a key of "inc_votes" of type number'
-        );
-      });
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .patch("/api/comments/1")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testBody)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe(
+            'Request body must be valid json and include a key of "inc_votes" of type number'
+          );
+        });
+    });
   });
   test("returns 400 if body malformed and comment cannot be found", () => {
     const testBody = "bananas";
-    return request(app)
-      .patch("/api/comments/90000")
-      .send(testBody)
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe(
-          'Request body must be valid json and include a key of "inc_votes" of type number'
-        );
-      });
+    return authButterBridge().then((accessToken) => {
+      return request(app)
+        .patch("/api/comments/90000")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(testBody)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe(
+            'Request body must be valid json and include a key of "inc_votes" of type number'
+          );
+        });
+    });
   });
 });
