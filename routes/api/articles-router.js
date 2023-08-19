@@ -19,7 +19,7 @@ articlesRouter.route("/").get(getArticles).post(verifyJWT, postArticles);
 articlesRouter
   .route("/:article_id")
   .get(getArticleById)
-  .patch(patchArticleById)
+  .patch(verifyJWT, patchArticleById)
   .delete(verifyJWT, deleteArticleById);
 
 articlesRouter

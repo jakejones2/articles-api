@@ -16,6 +16,10 @@ const {
 
 const { selectTopic } = require("../../models/topics-model");
 const { selectUser } = require("../../models/users-model");
+const {
+  checkNoUserArticleVotes,
+  insertUserArticleVotes,
+} = require("../../models/articles-users-model");
 
 function getArticleById(req, res, next) {
   selectArticleById(req.params.article_id)
@@ -45,6 +49,12 @@ function getArticles(req, res, next) {
 
 function patchArticleById(req, res, next) {
   validatePatchArticle(req.body.inc_votes)
+    .then(() => {
+      return checkNoUserArticleVotes(req.user, req.params.article_id);
+    })
+    .then(() => {
+      return insertUserArticleVotes(req.user, req.params.article_id);
+    })
     .then(() => {
       return updateArticleById(req.params.article_id, req.body.inc_votes);
     })

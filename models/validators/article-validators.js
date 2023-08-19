@@ -6,6 +6,11 @@ function validatePatchArticle(increase) {
       status: 400,
       msg: 'Request body must be valid JSON and must include a key of "inc_votes" with value of type number',
     });
+  } else if (Math.abs(increase) > 5) {
+    return Promise.reject({
+      status: 400,
+      msg: "You cannot increase or decrease an article's votes by more than 5.",
+    });
   }
   return Promise.resolve();
 }
