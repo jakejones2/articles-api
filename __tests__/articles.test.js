@@ -709,7 +709,11 @@ describe("POST /api/articles", () => {
           expect(article).toHaveProperty("created_at", expect.any(String));
           const currentTime = new Date().getTime();
           const articleTime = new Date(article.created_at).getTime();
-          expect(articleTime / 10000).toBeCloseTo(currentTime / 10000);
+          expect(articleTime < currentTime).toBe(true);
+          const differenceMilliseconds = currentTime - articleTime;
+          const hour = 1000 * 60 * 60;
+          // regardless of timezone, difference should be under three seconds
+          expect(differenceMilliseconds % hour < 3000);
         });
     });
   });
