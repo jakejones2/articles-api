@@ -16,7 +16,7 @@ The following is _not_ a comprehensive list! Its purpose is just to get the ball
 - 200 OK
 - 201 Created
 - 204 No Content
-- 400 Bad Request
+- 400 Bad request. Individual comments and articles must be retrieved by ID, e.g. GET /api/articles/3. To find an ID, search all articles/comments with the queries available.
 - 404 Not Found
 - 405 Method Not Allowed
 - 418 I'm a teapot

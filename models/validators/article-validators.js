@@ -1,5 +1,15 @@
 const isUrlHttp = require("is-url-http");
 
+function validatePatchArticle(increase) {
+  if (typeof increase !== "number") {
+    return Promise.reject({
+      status: 400,
+      msg: 'Request body must be valid JSON and must include a key of "inc_votes" with value of type number',
+    });
+  }
+  return Promise.resolve();
+}
+
 function validatePostArticle(body) {
   if (
     typeof body.title !== "string" ||
@@ -7,7 +17,10 @@ function validatePostArticle(body) {
     typeof body.topic !== "string" ||
     typeof body.author !== "string"
   ) {
-    return Promise.reject({ status: 400, msg: "Bad Request" });
+    return Promise.reject({
+      status: 400,
+      msg: 'Request body must be valid json with keys of "title", "body", "topic", and "author". All values should be strings.',
+    });
   } else if (body.article_img_url) {
     if (!isUrlHttp(body.article_img_url)) {
       return Promise.reject({ status: 400, msg: "Invalid image url" });
@@ -28,22 +41,38 @@ function validateArticleQueries({ sort_by = "created_at", order = "DESC" }) {
     "comment_count",
     "article_img_url",
   ];
-  if (
-    !validSortBy.includes(sort_by) ||
-    !["ASC", "DESC"].includes(order.toUpperCase())
-  ) {
-    return Promise.reject({ status: 400, msg: "Bad Request" });
-  } else return Promise.resolve();
+  if (!validSortBy.includes(sort_by)) {
+    return Promise.reject({
+      status: 400,
+      msg: 'Invalid "sort_by" query. Must be a key from GET articles/:article_id, e.g. "comment_count".',
+    });
+  } else if (!["ASC", "DESC"].includes(order.toUpperCase())) {
+    return Promise.reject({
+      status: 400,
+      msg: 'Invalid "order" query. Must be "asc" or "desc".',
+    });
+  }
+  return Promise.resolve();
 }
 
 function validatePaginationQueries({ limit = 10, p = 1 }) {
-  if (!/^[1-9]\d*$/.test(limit) || !/^[1-9]\d*$/.test(p)) {
-    return Promise.reject({ status: 400, msg: "Bad Request" });
-  } else return Promise.resolve();
+  if (!/^[1-9]\d*$/.test(limit)) {
+    return Promise.reject({
+      status: 400,
+      msg: 'Invalid "limit" query, must be an integer greater than 1',
+    });
+  } else if (!/^[1-9]\d*$/.test(p)) {
+    return Promise.reject({
+      status: 400,
+      msg: 'Invalid "p" query, must be an integer greater than 1',
+    });
+  }
+  return Promise.resolve();
 }
 
 module.exports = {
   validatePostArticle,
   validateArticleQueries,
   validatePaginationQueries,
+  validatePatchArticle,
 };

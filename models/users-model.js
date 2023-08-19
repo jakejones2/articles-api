@@ -2,12 +2,6 @@ const db = require("../db/connection");
 const format = require("pg-format");
 const bcrypt = require("bcrypt");
 
-function selectUsernames() {
-  return db.query("SELECT username FROM users").then(({ rows }) => {
-    return rows;
-  });
-}
-
 function selectUsers() {
   return db
     .query("SELECT username, name, avatar_url FROM users")
@@ -17,7 +11,6 @@ function selectUsers() {
 }
 
 function selectUser(username) {
-  if (!username) return Promise.reject({ status: 400, msg: "Bad Request" });
   return db
     .query("SELECT username, name, avatar_url FROM users WHERE username = $1", [
       username,
@@ -27,6 +20,12 @@ function selectUser(username) {
         return Promise.reject({ status: 404, msg: "User not found" });
       } else return rows[0];
     });
+}
+
+function selectUsernames() {
+  return db.query("SELECT username FROM users").then(({ rows }) => {
+    return rows;
+  });
 }
 
 function selectUserAuth(username) {
@@ -39,31 +38,37 @@ function selectUserAuth(username) {
     });
 }
 
-// sort out promises here...
-function insertUser({ username, name, avatar_url, password }) {
-  return bcrypt.hash(password, 10).then((hash) => {
-    const data = [username, name, hash];
-    let queryString = `INSERT INTO users (username, name, password_hash`;
-    if (avatar_url) {
-      data.push(avatar_url);
-      queryString += `, avatar_url`;
-    }
-    queryString += `) VALUES %L RETURNING username, name, avatar_url;`;
-    const query = format(queryString, [data]);
-    return db.query(query).then(({ rows }) => {
+function selectUserByRefreshToken(token) {
+  return db
+    .query("SELECT username FROM users WHERE refresh_token = $1", [token])
+    .then(({ rows }) => {
       return rows[0];
     });
-  });
 }
 
-function removeUser(username) {
-  return db.query("DELETE FROM users WHERE username = $1;", [username]);
+function insertUser({ username, name, avatar_url, password }) {
+  return bcrypt
+    .hash(password, 10)
+    .then((hash) => {
+      const data = [username, name, hash];
+      let queryString = "INSERT INTO users (username, name, password_hash";
+      if (avatar_url) {
+        data.push(avatar_url);
+        queryString += ", avatar_url";
+      }
+      queryString += ") VALUES %L RETURNING username, name, avatar_url;";
+      const query = format(queryString, [data]);
+      return db.query(query);
+    })
+    .then(({ rows }) => {
+      return rows[0];
+    });
 }
 
 function updateUserRefreshToken(token, username) {
   return db
     .query(
-      "UPDATE users SET refresh_token = $1 WHERE username = $2 RETURNING *;",
+      "UPDATE users SET refresh_token = $1 WHERE username = $2 RETURNING refresh_token;",
       [token, username]
     )
     .then(({ rows }) => {
@@ -71,22 +76,8 @@ function updateUserRefreshToken(token, username) {
     });
 }
 
-function selectUserByRefreshToken(token) {
-  if (!token) {
-    return Promise.reject();
-  } else {
-    return db
-      .query(`SELECT username FROM users WHERE refresh_token = $1`, [token])
-      .then(({ rows }) => {
-        return rows[0];
-      });
-  }
-}
-
-function deleteUserRefreshToken(user) {
-  return db.query(`UPDATE users SET refresh_token = '' WHERE username = $1`, [
-    user,
-  ]);
+function removeUser(username) {
+  return db.query("DELETE FROM users WHERE username = $1;", [username]);
 }
 
 module.exports = {
@@ -98,5 +89,4 @@ module.exports = {
   selectUserAuth,
   updateUserRefreshToken,
   selectUserByRefreshToken,
-  deleteUserRefreshToken,
 };

@@ -1,5 +1,5 @@
 function notFound(_, res) {
-  res.status(404).send({ msg: "Not found" });
+  res.status(404).send({ msg: "Endpoint not found" });
 }
 
 module.exports = notFound;

@@ -33,7 +33,7 @@ describe("GET /api error handling", () => {
       .get("/api/dogs")
       .expect(404)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Not found");
+        expect(msg).toBe("Endpoint not found");
       });
   });
 });

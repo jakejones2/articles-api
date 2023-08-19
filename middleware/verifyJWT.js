@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken");
-const { selectArticleById } = require("../models/articles-model");
 require("dotenv").config();
 
 function verifyJWT(req, res, next) {

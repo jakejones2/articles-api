@@ -1,6 +1,6 @@
 const endpoints = require("../../endpoints.js");
 
-function getApi(req, res, next) {
+function getApi(_, res) {
   res.status(200).send(endpoints);
 }
 

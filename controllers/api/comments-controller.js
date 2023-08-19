@@ -5,10 +5,16 @@ const {
   updateComment,
   selectComment,
 } = require("../../models/comments-model");
+
 const { selectUser } = require("../../models/users-model");
+
 const {
   validatePaginationQueries,
 } = require("../../models/validators/article-validators");
+const {
+  validatePostComment,
+  validatePatchComment,
+} = require("../../models/validators/comment-validators");
 
 function getComments(req, res, next) {
   validatePaginationQueries(req.query)
@@ -22,15 +28,18 @@ function getComments(req, res, next) {
 }
 
 function postComment(req, res, next) {
-  selectUser(req.body.username)
-    .then((user) => {
+  validatePostComment(req.body)
+    .then(() => {
+      return selectUser(req.body.username);
+    })
+    .then(() => {
       if (req.body.username !== req.user) {
         return Promise.reject({
           status: 403,
           msg: "Authenticated user does not match comment author",
         });
       }
-      return insertComment(req.params.article_id, req.body, user);
+      return insertComment(req.params.article_id, req.body);
     })
     .then((comment) => {
       res.status(201).send({ comment });
@@ -46,7 +55,8 @@ function deleteComment(req, res, next) {
           status: 403,
           msg: "Authenticated user does not match comment author",
         });
-      } else return removeComment(req.params.comment_id);
+      }
+      return removeComment(req.params.comment_id);
     })
     .then(() => {
       res.sendStatus(204);
@@ -55,7 +65,10 @@ function deleteComment(req, res, next) {
 }
 
 function patchComment(req, res, next) {
-  updateComment(req.body.inc_votes, req.params.comment_id)
+  validatePatchComment(req.body.inc_votes)
+    .then(() => {
+      return updateComment(req.body.inc_votes, req.params.comment_id);
+    })
     .then((comment) => {
       res.status(200).send({ comment });
     })

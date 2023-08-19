@@ -10,7 +10,7 @@ function validatePostUser({ username, password, name, avatar_url }) {
   if (!isUrlHttp(avatar_url) && avatar_url) {
     return Promise.reject({ status: 400, msg: "Invalid image url" });
   }
-  return Promise.resolve(username);
+  return Promise.resolve();
 }
 
 module.exports = { validatePostUser };

@@ -48,7 +48,9 @@ describe("GET /api/articles/:article_id/comments error handling", () => {
       .get("/api/articles/frog/comments")
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe(
+          "Bad request. Individual comments and articles must be retrieved by ID, e.g. GET /api/articles/3. To find an ID, search all articles/comments with the queries available."
+        );
       });
   });
 });
@@ -117,7 +119,9 @@ describe("GET /api/articles/:article_id/comments pagination error handling", () 
       .get("/api/articles/1/comments?limit=0")
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe(
+          'Invalid "limit" query, must be an integer greater than 1'
+        );
       });
   });
   test("if limit < 0, return 400", () => {
@@ -125,7 +129,9 @@ describe("GET /api/articles/:article_id/comments pagination error handling", () 
       .get("/api/articles/1/comments?limit=-3")
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe(
+          'Invalid "limit" query, must be an integer greater than 1'
+        );
       });
   });
   test("if page = 0, return 400", () => {
@@ -133,7 +139,9 @@ describe("GET /api/articles/:article_id/comments pagination error handling", () 
       .get("/api/articles/1/comments?limit=3&p=0")
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe(
+          'Invalid "p" query, must be an integer greater than 1'
+        );
       });
   });
   test("if page < 0, return 400", () => {
@@ -141,7 +149,9 @@ describe("GET /api/articles/:article_id/comments pagination error handling", () 
       .get("/api/articles/1/comments?limit=3&p=-6")
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe(
+          'Invalid "p" query, must be an integer greater than 1'
+        );
       });
   });
   test("if limit not a number, return 400", () => {
@@ -149,7 +159,9 @@ describe("GET /api/articles/:article_id/comments pagination error handling", () 
       .get("/api/articles/1/comments?limit=fish")
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe(
+          'Invalid "limit" query, must be an integer greater than 1'
+        );
       });
   });
   test("if page not a number, return 400", () => {
@@ -157,7 +169,9 @@ describe("GET /api/articles/:article_id/comments pagination error handling", () 
       .get("/api/articles/1/comments?limit=3&p=banana")
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe(
+          'Invalid "p" query, must be an integer greater than 1'
+        );
       });
   });
 });
@@ -293,7 +307,9 @@ describe("POST api/articles/:article_id/comments error handling", () => {
         .send(testComment)
         .expect(400)
         .then(({ body: { msg } }) => {
-          expect(msg).toBe("Bad Request");
+          expect(msg).toBe(
+            'Request body must be valid json, and must include a key of "body" with a value of type string'
+          );
         });
     });
   });
@@ -308,7 +324,9 @@ describe("POST api/articles/:article_id/comments error handling", () => {
         .send(testComment)
         .expect(400)
         .then(({ body: { msg } }) => {
-          expect(msg).toBe("Bad Request");
+          expect(msg).toBe(
+            'Request body must be valid json, and must include a key of "body" with a value of type string'
+          );
         });
     });
   });
@@ -323,7 +341,9 @@ describe("POST api/articles/:article_id/comments error handling", () => {
         .send(testComment)
         .expect(400)
         .then(({ body: { msg } }) => {
-          expect(msg).toBe("Bad Request");
+          expect(msg).toBe(
+            'Request body must be valid json, and must include a key of "body" with a value of type string'
+          );
         });
     });
   });
@@ -339,7 +359,9 @@ describe("POST api/articles/:article_id/comments error handling", () => {
         .send(testComment)
         .expect(400)
         .then(({ body: { msg } }) => {
-          expect(msg).toBe("Bad Request");
+          expect(msg).toBe(
+            "Bad request. Individual comments and articles must be retrieved by ID, e.g. GET /api/articles/3. To find an ID, search all articles/comments with the queries available."
+          );
         });
     });
   });
@@ -368,7 +390,9 @@ describe("POST api/articles/:article_id/comments error handling", () => {
         .send(testComment)
         .expect(400)
         .then(({ body: { msg } }) => {
-          expect(msg).toBe("Bad Request");
+          expect(msg).toBe(
+            'Request body must be valid json, and must include a key of "body" with a value of type string'
+          );
         });
     });
   });
@@ -433,7 +457,9 @@ describe("DELETE /api/comments/:comment_id error handling", () => {
         .set("Authorization", `Bearer ${accessToken}`)
         .expect(400)
         .then(({ body: { msg } }) => {
-          expect(msg).toBe("Bad Request");
+          expect(msg).toBe(
+            "Bad request. Individual comments and articles must be retrieved by ID, e.g. GET /api/articles/3. To find an ID, search all articles/comments with the queries available."
+          );
         });
     });
   });
@@ -522,7 +548,9 @@ describe("PATCH /api/comments/:comment_id error handling", () => {
       .patch("/api/comments/1")
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad request");
+        expect(msg).toBe(
+          'Request body must be valid json and include a key of "inc_votes" of type number'
+        );
       });
   });
   test("returns 400 if body has incorrect key", () => {
@@ -532,17 +560,21 @@ describe("PATCH /api/comments/:comment_id error handling", () => {
       .send(testBody)
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad request");
+        expect(msg).toBe(
+          'Request body must be valid json and include a key of "inc_votes" of type number'
+        );
       });
   });
-  test("returns 400 ifnpm  increase not a number", () => {
+  test("returns 400 if increase not a number", () => {
     const testBody = { inc_votes: "bananas" };
     return request(app)
       .patch("/api/comments/1")
       .send(testBody)
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad request");
+        expect(msg).toBe(
+          'Request body must be valid json and include a key of "inc_votes" of type number'
+        );
       });
   });
   test("returns 400 if body malformed", () => {
@@ -552,7 +584,9 @@ describe("PATCH /api/comments/:comment_id error handling", () => {
       .send(testBody)
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad request");
+        expect(msg).toBe(
+          'Request body must be valid json and include a key of "inc_votes" of type number'
+        );
       });
   });
   test("returns 400 if body malformed and comment cannot be found", () => {
@@ -562,7 +596,9 @@ describe("PATCH /api/comments/:comment_id error handling", () => {
       .send(testBody)
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad request");
+        expect(msg).toBe(
+          'Request body must be valid json and include a key of "inc_votes" of type number'
+        );
       });
   });
 });

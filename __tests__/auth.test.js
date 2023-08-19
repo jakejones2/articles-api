@@ -70,7 +70,13 @@ describe("POST /auth error handling", () => {
       username: "butter_bridge",
       password: "beans",
     };
-    return request(app).post("/auth").send(postBody).expect(401);
+    return request(app)
+      .post("/auth")
+      .send(postBody)
+      .expect(401)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Incorrect password");
+      });
   });
   test("should respond 401 if username and password both valid but do not match", () => {
     const postBody = {
@@ -98,7 +104,34 @@ describe("POST /auth error handling", () => {
 
 describe("GET /refresh", () => {
   test("should respond 401 if no jwt refresh cookie", () => {
-    return request(app).get("/refresh").expect(401);
+    return request(app)
+      .get("/refresh")
+      .expect(401)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Refresh token not found");
+      });
+  });
+  test("should respond with 403 if refresh cookie invalid", () => {
+    const postBody = {
+      username: "rogersop",
+      password: "mcNa36GX",
+    };
+    return request(app)
+      .post("/auth")
+      .send(postBody)
+      .then(({ header }) => {
+        const cookie = header["set-cookie"][0];
+        const newCookie = cookie.slice(0, 5) + "n" + cookie.slice(6);
+        return request(app)
+          .get("/refresh")
+          .set("Cookie", newCookie)
+          .expect(403)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe(
+              "Invalid refresh token. Request a new one at /auth."
+            );
+          });
+      });
   });
   test("should respond with 200 and access token if jwt refresh cookie correct", () => {
     const postBody = {

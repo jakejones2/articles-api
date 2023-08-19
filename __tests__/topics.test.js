@@ -88,7 +88,9 @@ describe("POST /api/topics error handling", () => {
       .post("/api/topics")
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe(
+          'Request body must be valid JSON and must include keys of "description" and "slug" of type string.'
+        );
       });
   });
   test("should respond with 400 if slug key missing", () => {
@@ -100,7 +102,9 @@ describe("POST /api/topics error handling", () => {
       .send(postBody)
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe(
+          'Request body must be valid JSON and must include keys of "description" and "slug" of type string.'
+        );
       });
   });
   test("should respond with 400 if description key missing", () => {
@@ -112,7 +116,9 @@ describe("POST /api/topics error handling", () => {
       .send(postBody)
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe(
+          'Request body must be valid JSON and must include keys of "description" and "slug" of type string.'
+        );
       });
   });
   test("should respond with 400 if slug not a string", () => {
@@ -125,7 +131,9 @@ describe("POST /api/topics error handling", () => {
       .send(postBody)
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe(
+          'Request body must be valid JSON and must include keys of "description" and "slug" of type string.'
+        );
       });
   });
   test("should respond with 400 if description not a string", () => {
@@ -138,7 +146,9 @@ describe("POST /api/topics error handling", () => {
       .send(postBody)
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe(
+          'Request body must be valid JSON and must include keys of "description" and "slug" of type string.'
+        );
       });
   });
   test("should return 400 if body malformed", () => {
@@ -148,7 +158,9 @@ describe("POST /api/topics error handling", () => {
       .send(postBody)
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe(
+          'Request body must be valid JSON and must include keys of "description" and "slug" of type string.'
+        );
       });
   });
 });

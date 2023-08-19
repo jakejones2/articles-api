@@ -71,12 +71,14 @@ describe("GET /api/articles/:article_id error handling", () => {
         expect(msg).toBe("Article not found");
       });
   });
-  test("Bad request produces a 400 and message", () => {
+  test("Bad request. Individual comments and articles must be retrieved by ID, e.g. GET /api/articles/3. To find an ID, search all articles/comments with the queries available. produces a 400 and message", () => {
     return request(app)
       .get("/api/articles/banana")
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe(
+          "Bad request. Individual comments and articles must be retrieved by ID, e.g. GET /api/articles/3. To find an ID, search all articles/comments with the queries available."
+        );
       });
   });
 });
@@ -265,7 +267,9 @@ describe("GET /api/articles query error handling", () => {
       .get("/api/articles?sort_by=pancakes")
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe(
+          'Invalid "sort_by" query. Must be a key from GET articles/:article_id, e.g. "comment_count".'
+        );
       });
   });
   test("should return 400 if order is not asc or desc", () => {
@@ -273,7 +277,7 @@ describe("GET /api/articles query error handling", () => {
       .get("/api/articles?order=desc;+DROP+TABLE+IF+EXISTS+articles;")
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe('Invalid "order" query. Must be "asc" or "desc".');
       });
   });
   test("if one query is incorrect and others pass, still return 400", () => {
@@ -281,7 +285,7 @@ describe("GET /api/articles query error handling", () => {
       .get("/api/articles?topic=cats&sort_by=article_id&order=OVERHERE")
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe('Invalid "order" query. Must be "asc" or "desc".');
       });
   });
   test("if topic does not exist return 404", () => {
@@ -388,7 +392,9 @@ describe("GET /api/articles pagination error handling", () => {
       .get("/api/articles?limit=0")
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe(
+          'Invalid "limit" query, must be an integer greater than 1'
+        );
       });
   });
   test("if limit < 0, return 400", () => {
@@ -396,7 +402,9 @@ describe("GET /api/articles pagination error handling", () => {
       .get("/api/articles?limit=-3")
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe(
+          'Invalid "limit" query, must be an integer greater than 1'
+        );
       });
   });
   test("if page = 0, return 400", () => {
@@ -404,7 +412,9 @@ describe("GET /api/articles pagination error handling", () => {
       .get("/api/articles?limit=3&p=0")
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe(
+          'Invalid "p" query, must be an integer greater than 1'
+        );
       });
   });
   test("if page < 0, return 400", () => {
@@ -412,7 +422,9 @@ describe("GET /api/articles pagination error handling", () => {
       .get("/api/articles?limit=3&p=-6")
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe(
+          'Invalid "p" query, must be an integer greater than 1'
+        );
       });
   });
   test("if limit not a number, return 400", () => {
@@ -420,7 +432,9 @@ describe("GET /api/articles pagination error handling", () => {
       .get("/api/articles?limit=fish")
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe(
+          'Invalid "limit" query, must be an integer greater than 1'
+        );
       });
   });
   test("if page not a number, return 400", () => {
@@ -428,7 +442,9 @@ describe("GET /api/articles pagination error handling", () => {
       .get("/api/articles?limit=3&p=banana")
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe(
+          'Invalid "p" query, must be an integer greater than 1'
+        );
       });
   });
 });
@@ -507,7 +523,9 @@ describe("PATCH /api/articles/:article_id error handling", () => {
       .send(examplePatch)
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Invalid PATCH body");
+        expect(msg).toBe(
+          'Request body must be valid JSON and must include a key of "inc_votes" with value of type number'
+        );
       });
   });
   test("Returns 400 if patch body missing", () => {
@@ -515,7 +533,9 @@ describe("PATCH /api/articles/:article_id error handling", () => {
       .patch("/api/articles/5")
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Invalid PATCH body");
+        expect(msg).toBe(
+          'Request body must be valid JSON and must include a key of "inc_votes" with value of type number'
+        );
       });
   });
   test("Returns 400 if patch inc_votes is not a number", () => {
@@ -525,7 +545,9 @@ describe("PATCH /api/articles/:article_id error handling", () => {
       .send(examplePatch)
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Invalid PATCH body");
+        expect(msg).toBe(
+          'Request body must be valid JSON and must include a key of "inc_votes" with value of type number'
+        );
       });
   });
   test("Returns 404 if article_id out of range", () => {
@@ -545,7 +567,9 @@ describe("PATCH /api/articles/:article_id error handling", () => {
       .send(examplePatch)
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe(
+          "Bad request. Individual comments and articles must be retrieved by ID, e.g. GET /api/articles/3. To find an ID, search all articles/comments with the queries available."
+        );
       });
   });
 });
@@ -678,7 +702,9 @@ describe("POST /api/articles error handling", () => {
         .set("Authorization", `Bearer ${accessToken}`)
         .expect(400)
         .then(({ body: { msg } }) => {
-          expect(msg).toBe("Bad Request");
+          expect(msg).toBe(
+            'Request body must be valid json with keys of "title", "body", "topic", and "author". All values should be strings.'
+          );
         });
     });
   });
@@ -852,7 +878,7 @@ describe("DELETE /api/articles/:article_id error handling", () => {
         .set("Authorization", `Bearer ${accessToken}`)
         .expect(403)
         .then(({ body: { msg } }) => {
-          expect(msg).toBe("Authenticated user does not match article owner");
+          expect(msg).toBe("Authenticated user does not match article author");
         });
     });
   });

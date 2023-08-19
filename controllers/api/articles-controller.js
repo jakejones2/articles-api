@@ -11,10 +11,10 @@ const {
   validateArticleQueries,
   validatePostArticle,
   validatePaginationQueries,
+  validatePatchArticle,
 } = require("../../models/validators/article-validators");
 
 const { selectTopic } = require("../../models/topics-model");
-
 const { selectUser } = require("../../models/users-model");
 
 function getArticleById(req, res, next) {
@@ -26,24 +26,28 @@ function getArticleById(req, res, next) {
 }
 
 function getArticles(req, res, next) {
-  const promises = [];
-  promises.push(validateArticleQueries(req.query));
-  promises.push(validatePaginationQueries(req.query));
+  const promises = [
+    validateArticleQueries(req.query),
+    validatePaginationQueries(req.query),
+  ];
   const { topic, author } = req.query;
   if (topic) promises.push(selectTopic(topic));
   if (author) promises.push(selectUser(author));
-  return Promise.all(promises)
+  Promise.all(promises)
     .then(() => {
       return selectArticles(req.query);
     })
-    .then((response) => {
-      res.status(200).send(response);
+    .then((articleData) => {
+      res.status(200).send(articleData);
     })
     .catch(next);
 }
 
 function patchArticleById(req, res, next) {
-  updateArticleById(req.params.article_id, req.body.inc_votes)
+  validatePatchArticle(req.body.inc_votes)
+    .then(() => {
+      return updateArticleById(req.params.article_id, req.body.inc_votes);
+    })
     .then((article) => {
       res.status(200).send({ article });
     })
@@ -66,8 +70,8 @@ function postArticles(req, res, next) {
         });
       } else return insertArticle(req.body);
     })
-    .then((article_id) => {
-      return selectArticleAndCommentCountById(article_id);
+    .then((article) => {
+      return selectArticleAndCommentCountById(article.article_id);
     })
     .then((article) => {
       res.status(201).send({ article });
@@ -81,7 +85,7 @@ function deleteArticleById(req, res, next) {
       if (article.author !== req.user) {
         return Promise.reject({
           status: 403,
-          msg: "Authenticated user does not match article owner",
+          msg: "Authenticated user does not match article author",
         });
       } else return Promise.resolve();
     })

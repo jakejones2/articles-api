@@ -7,8 +7,8 @@ const {
 } = require("../../controllers/api/user-controller");
 const { authenticateUsernameParameter } = require("../../middleware/verifyJWT");
 const { checkUser } = require("../../middleware/check-user");
-usersRouter.route("/").get(getUsers).post(postUser);
 
+usersRouter.route("/").get(getUsers).post(postUser);
 usersRouter
   .route("/:username")
   .get(getUser)
