@@ -76,7 +76,7 @@ After creating two .env files for development and testing, use the following com
 - `npm run setup-dbs`
 - `npm run seed`
 
-The command `run setup-dbs` is included for convenience, and creates development and test databases called `nc-news` and `nc-news-test` respectively. You can skip this step if you have created your own databases. Remember that development and test database names are set in their corresponding `.env` files, so to use this command you must assign PGDATABASE to `nc-news` or `nc-news-test` accordingly.
+The command `run setup-dbs` is included for convenience, and creates development and test databases called `nc_news` and `nc_news_test` respectively. You can skip this step if you have created your own databases. Remember that development and test database names are set in their corresponding `.env` files, so to use this command you must assign PGDATABASE to `nc-news` or `nc-news-test` accordingly.
 
 ### 6 - Add secrets to .env files
 
@@ -86,7 +86,7 @@ Now we need to add two **secret keys** to each `.env` file that the authenticati
 node utils/generate-key.js
 ```
 
-This command will print a 128-character code to the console. Create two of these codes for each `.env` file and assign them to the environment variables `ACCESS_TOKEN_SECRET` and `REFRESH_TOKEN_SECRET`. Below is an example `.env.test` file:
+This command will print a 128-character code to the console. Create **two** different codes for **each** `.env` file and assign them to the environment variables `ACCESS_TOKEN_SECRET` and `REFRESH_TOKEN_SECRET`. Below is an example `.env.test` file:
 
 ```
 PGDATABASE=nc_news_test
@@ -96,16 +96,16 @@ REFRESH_TOKEN_SECRET=24ae15b5dfa7a2d38010a6a0081998fe47ad9a78ab4791067eab8b1db78
 
 ### 7 - Run all tests
 
-To run all tests, enter `npm test` into the command line. Tests are held in the `__tests__` directory.<br><br>Be aware that jest runs tests **concurrently** by default. This will lead to errors if not handled, as each test requires uninterrupted contact with the test db. If you intend to run tests directly with jest include the `--runInBand` flag.<br><br>**Husky** is installed by default to check that all tests pass before git commits. To change this behaviour, alter the `pre-commit` file in `.husky`.
+To run all tests, enter `npm test` into the command line. Tests are held in the `__tests__` directory.<br><br>Be aware that jest runs tests **concurrently** by default. This will lead to errors, as each test requires uninterrupted contact with the test db. If you intend to run tests directly with jest include the `--runInBand` flag.<br><br>**Husky** is installed by default to check that all tests pass before each git commit. To change this behaviour, alter the `pre-commit` file in `.husky`.
 
 ### 8 - Start a local server
 
 To start a local server, enter `node listen.js` into the command line from the top-level directory. You should see a message saying 'Listening on port 9090'. This port can be changed by altering the `port` variable in `listen.js`.
 
-If you are getting unexpected behaviour with the authorization system, it might be because secure cookies are not getting sent over localhost. Try the following steps:
+If you are getting unexpected behaviour with the authorization system, it might be because your client is not sending secure cookies over http to localhost. Try the following steps to get around this:
 
 - Navigate to `/controllers/auth-controller.js`, line 40, and set `secure` to `false`.
-- Repeat the above step in `/controllers/logout-controller.js`, on line 17.
+- Repeat the above step in `/controllers/logout-controller.js` on line 17.
 
 # Usage
 
@@ -141,7 +141,7 @@ Example request body to POST an article:
 }
 ```
 
-An `author` must correspond to a `username` in the users table, and the `topic` to an existing `topic`. If these fields represent **new data**, you must first add them to their respective tables by sending POST requests to `/api/users` and `/api/topics`. You must also send an **access token** in the request header authenticating you as the username entered. See _Authorization_ for more information.
+An `author` must correspond to a `username` in the users table, and the `topic` to an existing `topic`. If these fields represent **new data**, you must first add them to their respective tables by sending POST requests to `/api/users` and `/api/topics`. You must also send an **access token** in the request header authenticating you as the username passed. See _Authorization_ for more information.
 
 ### PATCH
 
