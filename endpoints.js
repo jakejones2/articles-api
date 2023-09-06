@@ -287,6 +287,48 @@ module.exports = {
       requestHeaderIncludes: null,
       responseHeaderIncludes: null,
     },
+    "GET /api/users/:username/votes/comments": {
+      description: "Retrieves all votes on comments for a user",
+      queries: [],
+      successfulRequestBody: null,
+      successfulResponseBody: {
+        commentVotes: [
+          {
+            username: "jake123",
+            comment_id: 1,
+            votes: 5,
+          },
+          {
+            username: "jake123",
+            comment_id: 4,
+            votes: 2,
+          },
+        ],
+      },
+      requestHeaderIncludes: null,
+      responseHeaderIncludes: null,
+    },
+    "GET /api/users/:username/votes/comments": {
+      description: "Retrieves all votes on articles for a user",
+      queries: [],
+      successfulRequestBody: null,
+      successfulResponseBody: {
+        articleVotes: [
+          {
+            username: "jake123",
+            article_id: 1,
+            votes: 5,
+          },
+          {
+            username: "jake123",
+            article_id: 4,
+            votes: 2,
+          },
+        ],
+      },
+      requestHeaderIncludes: null,
+      responseHeaderIncludes: null,
+    },
     "DELETE /api/user/:username": {
       description:
         "Deletes given user. Must send access token in Authorization header. Returns 204 if success.",

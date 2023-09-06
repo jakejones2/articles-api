@@ -227,6 +227,8 @@ Any user can POST a topic, but once created they cannot be deleted via the API.
 - GET `/api/users` to see a list of all users.
 - GET `/api/users/:username` to see a single user.
 - GET `/api/users/:username/comments` to see all comments from a single user.
+- GET `/api/users/:username/votes/articles` to see all votes for articles by a user.
+- GET `/api/users/:username/votes/comments` to see all votes for comments by a user.
 
 ### POST
 

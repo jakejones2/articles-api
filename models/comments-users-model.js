@@ -31,9 +31,18 @@ function selectCommentVotes() {
   );
 }
 
+function selectCommentVotesByUser(username) {
+  return db
+    .query("SELECT * FROM users_comments_votes WHERE username = $1", [username])
+    .then(({ rows }) => {
+      return rows;
+    });
+}
+
 module.exports = {
   deleteCurrentUserCommentVote,
   insertUserCommentVotes,
   selectCommentVotes,
   selectVotesByComment,
+  selectCommentVotesByUser,
 };

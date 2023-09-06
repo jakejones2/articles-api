@@ -5,6 +5,12 @@ const {
   insertUser,
   removeUser,
 } = require("../../models/users-model");
+const {
+  selectCommentVotesByUser,
+} = require("../../models/comments-users-model");
+const {
+  selectArticleVotesByUser,
+} = require("../../models/articles-users-model");
 
 function getUsers(_, res, next) {
   selectUsers()
@@ -46,4 +52,27 @@ function deleteUser(req, res, next) {
     .catch(next);
 }
 
-module.exports = { getUsers, getUser, postUser, deleteUser };
+function getUserCommentVotes(req, res, next) {
+  selectCommentVotesByUser(req.params.username)
+    .then((commentVotes) => {
+      res.status(200).send({ commentVotes });
+    })
+    .catch(next);
+}
+
+function getUserArticleVotes(req, res, next) {
+  selectArticleVotesByUser(req.params.username)
+    .then((articleVotes) => {
+      res.status(200).send({ articleVotes });
+    })
+    .catch(next);
+}
+
+module.exports = {
+  getUsers,
+  getUser,
+  postUser,
+  deleteUser,
+  getUserCommentVotes,
+  getUserArticleVotes,
+};

@@ -6,7 +6,14 @@ const {
   formatComments,
 } = require("./utils");
 
-const seed = ({ topicData, userData, articleData, commentData }) => {
+const seed = ({
+  topicData,
+  userData,
+  articleData,
+  commentData,
+  userCommentsData,
+  userArticlesData,
+}) => {
   return db
     .query(`DROP TABLE IF EXISTS users_comments_votes;`)
     .then(() => {
@@ -130,6 +137,24 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
         ])
       );
       return db.query(insertCommentsQueryStr);
+    })
+    .then(() => {
+      const insertUserCommentsQueryStr = format(
+        "INSERT INTO users_comments_votes (username, comment_id, votes) VALUES %L;",
+        userCommentsData.map(({ username, comment_id, votes }) => {
+          return [username, comment_id, votes];
+        })
+      );
+      return db.query(insertUserCommentsQueryStr);
+    })
+    .then(() => {
+      const insertUserArticlesQueryStr = format(
+        "INSERT INTO users_articles_votes (username, article_id, votes) VALUES %L;",
+        userArticlesData.map(({ username, article_id, votes }) => {
+          return [username, article_id, votes];
+        })
+      );
+      return db.query(insertUserArticlesQueryStr);
     })
     .catch((err) => console.log(err));
 };

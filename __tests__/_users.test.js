@@ -251,3 +251,31 @@ describe("DELETE /api/users", () => {
       });
   });
 });
+
+describe("GET /api/users/:username/votes/articles", () => {
+  test("should return 404 if username not valid", () => {
+    return request(app).get("/api/users/frog/votes/articles").expect(404);
+  });
+  test("should return many to many correspondences if username valid", () => {
+    return request(app)
+      .get("/api/users/butter_bridge/votes/articles")
+      .expect(200)
+      .then(({ body: { articleVotes } }) => {
+        expect(articleVotes).toEqual([]);
+      });
+  });
+});
+
+describe("GET /api/users/:username/votes/comments", () => {
+  test("should return 404 if username not valid", () => {
+    return request(app).get("/api/users/dogs/votes/comments").expect(404);
+  });
+  test("should return many to many correspondences if username valid", () => {
+    return request(app)
+      .get("/api/users/butter_bridge/votes/comments")
+      .expect(200)
+      .then(({ body: { commentVotes } }) => {
+        expect(commentVotes).toEqual([]);
+      });
+  });
+});

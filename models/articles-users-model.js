@@ -30,9 +30,19 @@ function selectArticleVotes() {
     "SELECT article_id, SUM(votes) AS VOTES FROM users_articles_votes GROUP BY article_id;"
   );
 }
+
+function selectArticleVotesByUser(username) {
+  return db
+    .query("SELECT * FROM users_articles_votes WHERE username = $1", [username])
+    .then(({ rows }) => {
+      return rows;
+    });
+}
+
 module.exports = {
   deleteCurrentUserArticleVote,
   insertUserArticleVote,
   selectVotesByArticle,
   selectArticleVotes,
+  selectArticleVotesByUser,
 };
