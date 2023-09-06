@@ -15,6 +15,7 @@ A quick overview of GET endpoints is below. The remaining CRUD operations requir
 ### GET users, topics, articles and comments on the following endpoints:
 
 - `/api/users`
+- `/api/users/:username/comments`
 - `/api/topics`
 - `/api/articles`
   - `?topic=<topic slug>`
@@ -27,6 +28,7 @@ A quick overview of GET endpoints is below. The remaining CRUD operations requir
 - `/api/articles/:article_id/comments`
   - `?limit=<num of commments per page>`
   - `?p=<page number>`
+  - `?sort_by=votes`
 
 ## Setup
 
@@ -173,6 +175,7 @@ Accepts the following queries:
 
 - `limit` (int) determines the number of comments per page
 - `p` (int) determines the page number
+- `sort_by` (str) only takes the value of `votes`
 
 ### POST
 
@@ -218,6 +221,12 @@ Example request body to POST a new topic:
 Any user can POST a topic, but once created they cannot be deleted via the API.
 
 ## Users
+
+### GET
+
+- GET `/api/users` to see a list of all users.
+- GET `/api/users/:username` to see a single user.
+- GET `/api/users/:username/comments` to see all comments from a single user.
 
 ### POST
 

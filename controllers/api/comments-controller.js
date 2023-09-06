@@ -2,12 +2,14 @@ const {
   selectComments,
   insertComment,
   removeComment,
-  updateComment,
   selectComment,
+  selectCommentsByAuthor,
 } = require("../../models/comments-model");
 const {
-  checkNoUserCommentVotes,
+  deleteCurrentUserCommentVote,
   insertUserCommentVotes,
+  selectCommentVotes,
+  selectVotesByComment,
 } = require("../../models/comments-users-model");
 
 const { selectUser } = require("../../models/users-model");
@@ -21,12 +23,28 @@ const {
 } = require("../../models/validators/comment-validators");
 
 function getComments(req, res, next) {
+  let commentData;
   validatePaginationQueries(req.query)
     .then(() => {
       return selectComments(req.params.article_id, req.query);
     })
-    .then((response) => {
-      return res.status(200).send(response);
+    .then((comments) => {
+      commentData = comments;
+      return selectCommentVotes();
+    })
+    .then(({ rows }) => {
+      for (const comment of commentData.comments) {
+        const matchingVoteRow = rows.find(
+          (row) => row.comment_id === comment.comment_id
+        );
+        comment.votes = +matchingVoteRow?.votes || 0;
+      }
+      if (req.query.sort_by === "votes") {
+        commentData.comments.sort((a, b) => {
+          return b.votes - a.votes;
+        });
+      }
+      res.status(200).send(commentData);
     })
     .catch(next);
 }
@@ -69,18 +87,47 @@ function deleteComment(req, res, next) {
 }
 
 function patchComment(req, res, next) {
+  let comment;
   validatePatchComment(req.body.inc_votes)
     .then(() => {
-      return checkNoUserCommentVotes(req.user, req.params.comment_id);
+      return deleteCurrentUserCommentVote(req.user, req.params.comment_id);
     })
     .then(() => {
-      return insertUserCommentVotes(req.user, req.params.comment_id);
+      return insertUserCommentVotes(
+        req.user,
+        req.params.comment_id,
+        req.body.inc_votes
+      );
     })
     .then(() => {
-      return updateComment(req.body.inc_votes, req.params.comment_id);
+      return selectComment(req.params.comment_id);
     })
-    .then((comment) => {
+    .then((commentData) => {
+      comment = commentData;
+      return selectVotesByComment(req.params.comment_id);
+    })
+    .then(({ rows }) => {
+      comment.votes = +rows[0].votes;
       res.status(200).send({ comment });
+    })
+    .catch(next);
+}
+
+function getCommentsByAuthor(req, res, next) {
+  let comments;
+  selectCommentsByAuthor(req.params.username)
+    .then((commentsData) => {
+      comments = commentsData;
+      return selectCommentVotes();
+    })
+    .then(({ rows }) => {
+      for (const comment of comments) {
+        const matchingVoteRow = rows.find(
+          (row) => row.comment_id === comment.comment_id
+        );
+        comment.votes = +matchingVoteRow?.votes || 0;
+      }
+      res.status(200).send({ comments });
     })
     .catch(next);
 }
@@ -90,5 +137,5 @@ module.exports = {
   postComment,
   deleteComment,
   patchComment,
-  updateComment,
+  getCommentsByAuthor,
 };

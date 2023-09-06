@@ -48,7 +48,7 @@ module.exports = {
       successfulResponseBody: {
         article: {
           article_id: 14,
-          votes: 0,
+          votes: 13,
           comment_count: 0,
           author: "butter_bridge",
           title: "important new article",
@@ -77,6 +77,7 @@ module.exports = {
           author: "icellusedkars",
           body: "I was hungry.",
           comment_count: 11,
+          votes: 15,
           created_at: "2020-01-07T14:08:00.000Z",
           article_img_url:
             "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
@@ -89,8 +90,7 @@ module.exports = {
       description:
         "Updates the votes property of a given article. Must receive object with a key of 'inc_votes'.",
       queries: [],
-      examplePatchBody: { inc_votes: 3 },
-      successfulRequestBody: null,
+      successfulRequestBody: { inc_votes: 3 },
       successfulResponseBody: {
         article: {
           article_id: 5,
@@ -99,6 +99,7 @@ module.exports = {
           author: "rogersop",
           body: "Bastet walks amongst us, and the cats are taking arms!",
           created_at: "2020-08-03T13:14:00.000Z",
+          comment_count: 3,
           votes: 3,
           article_img_url:
             "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
@@ -120,7 +121,7 @@ module.exports = {
     "GET /api/articles/:article_id/comments": {
       description:
         "Gets all comments on an article, paginated in 10s by default.",
-      queries: ["limit", "p"],
+      queries: ["limit", "p", "sort_by"], // sort by votes only
       successfulRequestBody: null,
       successfulResponseBody: {
         total_count: 11,
@@ -153,7 +154,6 @@ module.exports = {
           author: "butter_bridge",
           body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
           article_id: 1,
-          votes: 0,
           created_at: "2020-10-31T03:03:00.000Z",
         },
       },
@@ -265,6 +265,24 @@ module.exports = {
           avatar_url:
             "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
         },
+      },
+      requestHeaderIncludes: null,
+      responseHeaderIncludes: null,
+    },
+    "GET /api/users/:username/comments": {
+      description: "Retrieves all comments for a given username",
+      queries: [],
+      successfulRequestBody: null,
+      successfulResponseBody: {
+        comments: [
+          {
+            author: "butter_bridge",
+            body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            article_id: 1,
+            votes: 0,
+            created_at: "2020-10-31T03:03:00.000Z",
+          },
+        ],
       },
       requestHeaderIncludes: null,
       responseHeaderIncludes: null,

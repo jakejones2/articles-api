@@ -16,13 +16,13 @@ function selectArticles({
       articles.article_id,
       articles.topic,
       articles.created_at,
-      articles.votes,
       articles.article_img_url,
       CAST(COUNT(*) OVER() AS INT) AS total_count,
       CAST(COUNT(comments.article_id) AS INT) AS comment_count
     FROM articles 
     LEFT OUTER JOIN comments ON articles.article_id = comments.article_id
     `;
+
   // queries already protected against injection via validation
   if (topic) queryString += ` WHERE articles.topic = '${topic}'`;
   if (topic && author) queryString += ` AND articles.author = '${author}'`;
@@ -50,14 +50,13 @@ function selectArticleById(article_id) {
         articles.topic,
         articles.body,
         articles.created_at,
-        articles.votes,
         articles.article_img_url,
         CAST(COUNT(comments.article_id) AS INT) AS comment_count
       FROM articles
-      LEFT OUTER JOIN comments
-      ON articles.article_id = comments.article_id
+      LEFT OUTER JOIN comments ON articles.article_id = comments.article_id
       WHERE articles.article_id = $1
-      GROUP BY articles.article_id;
+      GROUP BY articles.article_id
+      ORDER BY articles.created_at;
       `,
       [article_id]
     )
@@ -69,46 +68,9 @@ function selectArticleById(article_id) {
     });
 }
 
-function selectArticleAndCommentCountById(article_id) {
-  let queryString = `
-    SELECT       
-      articles.author, 
-      articles.title, 
-      articles.article_id,
-      articles.topic,
-      articles.body,
-      articles.created_at,
-      articles.votes,
-      articles.article_img_url,
-      CAST(COUNT(comments.article_id) AS INT) AS comment_count
-    FROM articles 
-    LEFT OUTER JOIN comments ON articles.article_id = comments.article_id
-    WHERE articles.article_id = $1
-    GROUP BY articles.article_id
-    ORDER BY articles.article_id;
-    `;
-  return db.query(queryString, [article_id]).then(({ rows }) => {
-    return rows[0];
-  });
-}
-
-function updateArticleById(article_id, increase) {
-  return db
-    .query(
-      "UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *",
-      [increase, article_id]
-    )
-    .then(({ rows }) => {
-      if (rows.length === 0) {
-        return Promise.reject({ status: 404, msg: "Article not found" });
-      }
-      return rows[0];
-    });
-}
-
 function insertArticle(body) {
-  const values = [body.title, body.topic, body.author, body.body, 0];
-  let queryString = "INSERT INTO articles (title, topic, author, body, votes";
+  const values = [body.title, body.topic, body.author, body.body];
+  let queryString = "INSERT INTO articles (title, topic, author, body";
   if (body.article_img_url) {
     values.push(body.article_img_url);
     queryString += `, article_img_url`;
@@ -133,9 +95,7 @@ function removeArticle(article_id) {
 
 module.exports = {
   selectArticleById,
-  updateArticleById,
   selectArticles,
   insertArticle,
-  selectArticleAndCommentCountById,
   removeArticle,
 };

@@ -28,7 +28,7 @@ function authUser(req, res, next) {
       const refreshToken = jwt.sign(
         { username },
         process.env.REFRESH_TOKEN_SECRET,
-        { expiresIn: "1d" }
+        { expiresIn: "7d" }
       );
       return updateUserRefreshToken(refreshToken, username);
     })
@@ -42,7 +42,7 @@ function authUser(req, res, next) {
       const accessToken = jwt.sign(
         { username },
         process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: "300s" }
+        { expiresIn: "1d" }
       );
       res.status(200).send({ accessToken });
     })

@@ -27,7 +27,7 @@ function refreshController(req, res) {
           const accessToken = jwt.sign(
             { username: decoded.username },
             process.env.ACCESS_TOKEN_SECRET,
-            { expiresIn: "300s" }
+            { expiresIn: "1d" }
           );
           res.status(200).send({ accessToken });
         }
