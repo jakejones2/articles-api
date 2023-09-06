@@ -29,7 +29,7 @@ describe("GET /api/articles/:article_id", () => {
           author: "butter_bridge",
           body: "I find this existence challenging",
           created_at: "2020-07-09T20:11:00.000Z",
-          votes: 100,
+          votes: 0,
           article_img_url:
             "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
         });
@@ -62,6 +62,7 @@ describe("GET /api/articles/:article_id", () => {
       });
   });
 });
+
 describe("GET /api/articles/:article_id error handling", () => {
   test("Out of range id produces 404 and message", () => {
     return request(app)
@@ -107,7 +108,7 @@ describe("GET /api/articles", () => {
           topic: "mitch",
           author: "butter_bridge",
           created_at: "2020-07-09T20:11:00.000Z",
-          votes: 100,
+          votes: 0,
           article_img_url:
             "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
         });
@@ -128,6 +129,7 @@ describe("GET /api/articles", () => {
       });
   });
 });
+
 describe("GET /api/articles query topic", () => {
   test("Should accept the query topic", () => {
     return request(app)
@@ -476,7 +478,7 @@ describe("PATCH api/articles/:article_id", () => {
             author: "butter_bridge",
             body: "I find this existence challenging",
             created_at: "2020-07-09T20:11:00.000Z",
-            votes: 101,
+            votes: 1,
             article_img_url:
               "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
           });
@@ -543,25 +545,6 @@ describe("PATCH /api/articles/:article_id error handling", () => {
           "You need to send an access token to complete this request"
         );
       });
-  });
-  test("Returns a 403 if already voted", () => {
-    const examplePatch = { inc_votes: 1 };
-    return authButterBridge().then((accessToken) => {
-      return request(app)
-        .patch("/api/articles/1")
-        .set("Authorization", `Bearer ${accessToken}`)
-        .send(examplePatch)
-        .then(() => {
-          return request(app)
-            .patch("/api/articles/1")
-            .set("Authorization", `Bearer ${accessToken}`)
-            .send(examplePatch)
-            .expect(403)
-            .then(({ body: { msg } }) => {
-              expect(msg).toBe("You have already voted for this article");
-            });
-        });
-    });
   });
   test("Returns 400 if patch increase is greater than 5", () => {
     const examplePatch = { inc_votes: 100 };
@@ -697,7 +680,6 @@ describe("POST /api/articles", () => {
         .then(({ body: { article } }) => {
           expect(article).toMatchObject({
             article_id: 14,
-            votes: 0,
             comment_count: 0,
             author: "butter_bridge",
             title: "important new article",
@@ -758,7 +740,6 @@ describe("POST /api/articles", () => {
         .then(({ body: { article } }) => {
           expect(article).toMatchObject({
             article_id: 14,
-            votes: 0,
             comment_count: 0,
             author: "butter_bridge",
             title: "important new article",
@@ -772,6 +753,7 @@ describe("POST /api/articles", () => {
     });
   });
 });
+
 describe("POST /api/articles error handling", () => {
   test("should receive a 401 if user not authenticated", () => {
     return request(app).post("/api/articles").expect(401);

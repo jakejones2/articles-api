@@ -24,12 +24,11 @@ describe("GET /api/articles/:article_id/comments", () => {
       .then(({ body: { comments } }) => {
         expect(comments.length > 0).toBe(true);
         expect(comments[0]).toMatchObject({
-          comment_id: 2,
-          body: "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
-          votes: 14,
-          author: "butter_bridge",
-          article_id: 1,
-          created_at: "2020-10-31T03:03:00.000Z",
+          author: "icellusedkars",
+          body: "I hate streaming noses",
+          comment_id: 5,
+          created_at: "2020-11-03T21:00:00.000Z",
+          votes: 0,
         });
       });
   });
@@ -79,19 +78,19 @@ describe("GET /api/articles/:article_id/comments pagination", () => {
         expect(totalCount).toBe(11);
       });
   });
-  test("second page has correct comments (sorted by id by default)", () => {
+  test("second page has correct comments (sorted by created_at by default)", () => {
     return request(app)
       .get("/api/articles/1/comments?limit=3&p=2")
       .expect(200)
       .then(({ body: { comments } }) => {
         expect(comments[0]).toMatchObject({
           // comment_id 1 has article_id 9
-          comment_id: 5,
-          body: "I hate streaming noses",
-          votes: 0,
           author: "icellusedkars",
           article_id: 1,
-          created_at: "2020-11-03T21:00:00.000Z",
+          body: "Fruit pastilles",
+          comment_id: 13,
+          created_at: "2020-06-15T10:25:00.000Z",
+          votes: 0,
         });
       });
   });
@@ -220,7 +219,6 @@ describe("POST /api/articles/:article_id/comments", () => {
             author: "butter_bridge",
             body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
             article_id: 1,
-            votes: 0,
           });
           expect(comment).toHaveProperty("created_at", expect.any(String));
         });
@@ -243,7 +241,6 @@ describe("POST /api/articles/:article_id/comments", () => {
             author: "butter_bridge",
             body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
             article_id: 1,
-            votes: 0,
           });
           expect(comment).toHaveProperty("created_at", expect.any(String));
           expect(comment).not.toHaveProperty("favouriteFruit");
@@ -487,7 +484,7 @@ describe("PATCH /api/comments/:comment_id", () => {
         .then(({ body: { comment } }) => {
           expect(comment).toMatchObject({
             body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
-            votes: 17,
+            votes: 1,
             author: "butter_bridge",
             article_id: 9,
             created_at: "2020-04-06T12:17:00.000Z",
@@ -505,7 +502,7 @@ describe("PATCH /api/comments/:comment_id", () => {
         .then(({ body: { comment } }) => {
           expect(comment).toMatchObject({
             body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
-            votes: 15,
+            votes: -1,
             author: "butter_bridge",
             article_id: 9,
             created_at: "2020-04-06T12:17:00.000Z",
@@ -523,7 +520,7 @@ describe("PATCH /api/comments/:comment_id", () => {
         .then(({ body: { comment } }) => {
           expect(comment).toMatchObject({
             body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
-            votes: 21,
+            votes: 5,
             author: "butter_bridge",
             article_id: 9,
             created_at: "2020-04-06T12:17:00.000Z",
@@ -542,7 +539,7 @@ describe("PATCH /api/comments/:comment_id", () => {
         .then(({ body: { comment } }) => {
           expect(comment).toMatchObject({
             body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
-            votes: 17,
+            votes: 1,
             author: "butter_bridge",
             article_id: 9,
             created_at: "2020-04-06T12:17:00.000Z",
@@ -563,25 +560,6 @@ describe("PATCH /api/comments/:comment_id error handling", () => {
           "You need to send an access token to complete this request"
         );
       });
-  });
-  test("Returns a 403 if already voted", () => {
-    const examplePatch = { inc_votes: 1 };
-    return authButterBridge().then((accessToken) => {
-      return request(app)
-        .patch("/api/comments/1")
-        .set("Authorization", `Bearer ${accessToken}`)
-        .send(examplePatch)
-        .then(() => {
-          return request(app)
-            .patch("/api/comments/1")
-            .set("Authorization", `Bearer ${accessToken}`)
-            .send(examplePatch)
-            .expect(403)
-            .then(({ body: { msg } }) => {
-              expect(msg).toBe("You have already voted for this comment");
-            });
-        });
-    });
   });
   test("Returns 400 if patch increase is greater than 5", () => {
     const examplePatch = { inc_votes: 100 };
@@ -698,5 +676,20 @@ describe("PATCH /api/comments/:comment_id error handling", () => {
           );
         });
     });
+  });
+});
+describe("GET /api/users/:username/comments", () => {
+  test("should respond with 404 if username not found", () => {
+    return request(app).get("/api/users/frog/comments").expect(404);
+  });
+  test("should respond with list of comments all by author", () => {
+    return request(app)
+      .get("/api/users/butter_bridge/comments")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        comments.forEach((comment) => {
+          expect(comment.author).toBe("butter_bridge");
+        });
+      });
   });
 });

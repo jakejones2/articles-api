@@ -51,7 +51,6 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
         author VARCHAR NOT NULL REFERENCES users(username) ON DELETE CASCADE,
         body VARCHAR NOT NULL,
         created_at TIMESTAMP DEFAULT NOW(),
-        votes INT DEFAULT 0 NOT NULL,
         article_img_url VARCHAR DEFAULT 'https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700'
       );`);
     })
@@ -62,7 +61,6 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
         body VARCHAR NOT NULL,
         article_id INT REFERENCES articles(article_id) ON DELETE cascade NOT NULL,
         author VARCHAR REFERENCES users(username) NOT NULL,
-        votes INT DEFAULT 0 NOT NULL,
         created_at TIMESTAMP DEFAULT NOW()
       );`);
     })
@@ -71,6 +69,7 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
       CREATE TABLE users_articles_votes (
         username VARCHAR REFERENCES users(username),
         article_id INT REFERENCES articles(article_id),
+        votes INT DEFAULT 1 NOT NULL, 
         CONSTRAINT users_articles_votes_pk PRIMARY KEY(username,article_id)
       );`);
     })
@@ -79,6 +78,7 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
       CREATE TABLE users_comments_votes (
         username VARCHAR REFERENCES users(username),
         comment_id INT REFERENCES comments(comment_id),
+        votes INT DEFAULT 1 NOT NULL, 
         CONSTRAINT users_comments_votes_pk PRIMARY KEY(username,comment_id)
       );`);
     })
@@ -88,7 +88,6 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
         topicData.map(({ slug, description }) => [slug, description])
       );
       const topicsPromise = db.query(insertTopicsQueryStr);
-
       const insertUsersQueryStr = format(
         "INSERT INTO users ( username, name, avatar_url, password_hash) VALUES %L;",
         userData.map(({ username, name, avatar_url, password_hash }) => [
@@ -99,46 +98,40 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
         ])
       );
       const usersPromise = db.query(insertUsersQueryStr);
-
       return Promise.all([topicsPromise, usersPromise]);
     })
     .then(() => {
       const formattedArticleData = articleData.map(convertTimestampToDate);
       const insertArticlesQueryStr = format(
-        "INSERT INTO articles (title, topic, author, body, created_at, votes, article_img_url) VALUES %L RETURNING *;",
+        "INSERT INTO articles (title, topic, author, body, created_at, article_img_url) VALUES %L RETURNING *;",
         formattedArticleData.map(
-          ({
+          ({ title, topic, author, body, created_at, article_img_url }) => [
             title,
             topic,
             author,
             body,
             created_at,
-            votes = 0,
             article_img_url,
-          }) => [title, topic, author, body, created_at, votes, article_img_url]
+          ]
         )
       );
-
       return db.query(insertArticlesQueryStr);
     })
     .then(({ rows: articleRows }) => {
       const articleIdLookup = createRef(articleRows, "title", "article_id");
       const formattedCommentData = formatComments(commentData, articleIdLookup);
-
       const insertCommentsQueryStr = format(
-        "INSERT INTO comments (body, author, article_id, votes, created_at) VALUES %L;",
-        formattedCommentData.map(
-          ({ body, author, article_id, votes = 0, created_at }) => [
-            body,
-            author,
-            article_id,
-            votes,
-            created_at,
-          ]
-        )
+        "INSERT INTO comments (body, author, article_id, created_at) VALUES %L;",
+        formattedCommentData.map(({ body, author, article_id, created_at }) => [
+          body,
+          author,
+          article_id,
+          created_at,
+        ])
       );
       return db.query(insertCommentsQueryStr);
-    });
+    })
+    .catch((err) => console.log(err));
 };
 
 module.exports = seed;

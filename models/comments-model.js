@@ -10,7 +10,7 @@ function selectComments(article_id, { limit = 10, p = 1 }) {
         CAST(COUNT(*) OVER() AS  INT) AS total_count 
       FROM comments 
       WHERE article_id = $1
-      ORDER BY comment_id ASC 
+      ORDER BY created_at DESC 
       LIMIT $2 
       OFFSET $3
       `,
@@ -41,11 +41,11 @@ function selectComment(comment_id) {
 }
 
 function insertComment(article_id, body) {
-  const comments = [[body.body, body.username, article_id, 0, new Date()]];
+  const comments = [[body.body, body.username, article_id, new Date()]];
   const queryString = format(
     `
     INSERT INTO comments
-      (body, author, article_id, votes, created_at)
+      (body, author, article_id, created_at)
     VALUES %L
     RETURNING *;
     `,
@@ -69,17 +69,14 @@ function removeComment(comment_id) {
     });
 }
 
-function updateComment(increase, comment_id) {
+function selectCommentsByAuthor(author) {
   return db
     .query(
-      "UPDATE comments SET votes = votes + $1 WHERE comment_id = $2 RETURNING *;",
-      [increase, comment_id]
+      "SELECT * FROM comments WHERE author = $1 ORDER BY created_at DESC;",
+      [author]
     )
     .then(({ rows }) => {
-      if (!rows.length) {
-        return Promise.reject({ status: 404, msg: "Comment not found" });
-      }
-      return rows[0];
+      return rows;
     });
 }
 
@@ -88,5 +85,5 @@ module.exports = {
   selectComment,
   insertComment,
   removeComment,
-  updateComment,
+  selectCommentsByAuthor,
 };

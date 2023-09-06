@@ -1,8 +1,6 @@
 const {
   selectArticleById,
-  updateArticleById,
   insertArticle,
-  selectArticleAndCommentCountById,
   selectArticles,
   removeArticle,
 } = require("../../models/articles-model");
@@ -17,13 +15,21 @@ const {
 const { selectTopic } = require("../../models/topics-model");
 const { selectUser } = require("../../models/users-model");
 const {
-  checkNoUserArticleVotes,
-  insertUserArticleVotes,
+  deleteCurrentUserArticleVote,
+  insertUserArticleVote,
+  selectVotesByArticle,
+  selectArticleVotes,
 } = require("../../models/articles-users-model");
 
 function getArticleById(req, res, next) {
+  let article;
   selectArticleById(req.params.article_id)
-    .then((article) => {
+    .then((articleData) => {
+      article = articleData;
+      return selectVotesByArticle(articleData.article_id);
+    })
+    .then(({ rows }) => {
+      article.votes = rows[0].votes ? rows[0].votes : 0;
       res.status(200).send({ article });
     })
     .catch(next);
@@ -34,14 +40,35 @@ function getArticles(req, res, next) {
     validateArticleQueries(req.query),
     validatePaginationQueries(req.query),
   ];
-  const { topic, author } = req.query;
+  let sortByVotes = false;
+  const { topic, author, sort_by } = req.query;
+  if (sort_by === "votes") {
+    req.query.sort_by = "created_at";
+    sortByVotes = true;
+  }
   if (topic) promises.push(selectTopic(topic));
   if (author) promises.push(selectUser(author));
+  let articleData;
   Promise.all(promises)
     .then(() => {
       return selectArticles(req.query);
     })
-    .then((articleData) => {
+    .then((rows) => {
+      articleData = rows;
+      return selectArticleVotes();
+    })
+    .then(({ rows }) => {
+      for (const article of articleData.articles) {
+        const matchingVoteRow = rows.find(
+          (row) => row.article_id === article.article_id
+        );
+        article.votes = +matchingVoteRow?.votes || 0;
+      }
+      if (sortByVotes) {
+        articleData.articles.sort((a, b) => {
+          return a.votes - b.votes;
+        });
+      }
       res.status(200).send(articleData);
     })
     .catch(next);
@@ -50,15 +77,24 @@ function getArticles(req, res, next) {
 function patchArticleById(req, res, next) {
   validatePatchArticle(req.body.inc_votes)
     .then(() => {
-      return checkNoUserArticleVotes(req.user, req.params.article_id);
+      return deleteCurrentUserArticleVote(req.user, req.params.article_id);
     })
     .then(() => {
-      return insertUserArticleVotes(req.user, req.params.article_id);
+      return insertUserArticleVote(
+        req.user,
+        req.params.article_id,
+        req.body.inc_votes
+      );
     })
     .then(() => {
-      return updateArticleById(req.params.article_id, req.body.inc_votes);
+      return selectArticleById(req.params.article_id);
     })
-    .then((article) => {
+    .then((articleData) => {
+      article = articleData;
+      return selectVotesByArticle(articleData.article_id);
+    })
+    .then(({ rows }) => {
+      article.votes = rows[0].votes ? +rows[0].votes : 0;
       res.status(200).send({ article });
     })
     .catch(next);
@@ -81,7 +117,7 @@ function postArticles(req, res, next) {
       } else return insertArticle(req.body);
     })
     .then((article) => {
-      return selectArticleAndCommentCountById(article.article_id);
+      return selectArticleById(article.article_id);
     })
     .then((article) => {
       res.status(201).send({ article });
