@@ -16,6 +16,8 @@ A quick overview of GET endpoints is below. The remaining CRUD operations requir
 
 - `/api/users`
 - `/api/users/:username/comments`
+- `/api/users/:username/votes/articles`
+- `/api/users/:username/votes/comments`
 - `/api/topics`
 - `/api/articles`
   - `?topic=<topic slug>`
