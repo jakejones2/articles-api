@@ -1,5 +1,3 @@
-const isUrlHttp = require("is-url-http");
-
 function validatePatchArticle(increase) {
   if (typeof increase !== "number") {
     return Promise.reject({
@@ -27,7 +25,11 @@ function validatePostArticle(body) {
       msg: 'Request body must be valid json with keys of "title", "body", "topic", and "author". All values should be strings.',
     });
   } else if (body.article_img_url) {
-    if (!isUrlHttp(body.article_img_url)) {
+    if (
+      !/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.test(
+        body.article_img_url
+      )
+    ) {
       return Promise.reject({ status: 400, msg: "Invalid image url" });
     }
   }

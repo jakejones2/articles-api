@@ -29,7 +29,7 @@ function getArticleById(req, res, next) {
       return selectVotesByArticle(articleData.article_id);
     })
     .then(({ rows }) => {
-      article.votes = rows[0].votes ? rows[0].votes : 0;
+      article.votes = rows[0].votes ? +rows[0].votes : 0;
       res.status(200).send({ article });
     })
     .catch(next);

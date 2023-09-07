@@ -83,14 +83,7 @@ function insertArticle(body) {
 }
 
 function removeArticle(article_id) {
-  return db
-    .query("DELETE FROM articles WHERE article_id = $1", [article_id])
-    .then(({ rowCount }) => {
-      if (!rowCount) {
-        return Promise.reject({ status: 404, msg: "Article not found" });
-      }
-      return Promise.resolve();
-    });
+  return db.query("DELETE FROM articles WHERE article_id = $1", [article_id]);
 }
 
 module.exports = {

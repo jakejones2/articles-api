@@ -261,7 +261,9 @@ describe("GET /api/users/:username/votes/articles", () => {
       .get("/api/users/butter_bridge/votes/articles")
       .expect(200)
       .then(({ body: { articleVotes } }) => {
-        expect(articleVotes).toEqual([]);
+        expect(articleVotes).toEqual([
+          { article_id: 1, username: "butter_bridge", votes: 0 },
+        ]);
       });
   });
 });
@@ -275,7 +277,9 @@ describe("GET /api/users/:username/votes/comments", () => {
       .get("/api/users/butter_bridge/votes/comments")
       .expect(200)
       .then(({ body: { commentVotes } }) => {
-        expect(commentVotes).toEqual([]);
+        expect(commentVotes).toEqual([
+          { comment_id: 3, username: "butter_bridge", votes: 0 },
+        ]);
       });
   });
 });

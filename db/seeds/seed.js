@@ -66,7 +66,7 @@ const seed = ({
       CREATE TABLE comments (
         comment_id SERIAL PRIMARY KEY,
         body VARCHAR NOT NULL,
-        article_id INT REFERENCES articles(article_id) ON DELETE cascade NOT NULL,
+        article_id INT REFERENCES articles(article_id) ON DELETE CASCADE NOT NULL,
         author VARCHAR REFERENCES users(username) NOT NULL,
         created_at TIMESTAMP DEFAULT NOW()
       );`);
@@ -74,8 +74,8 @@ const seed = ({
     .then(() => {
       return db.query(`
       CREATE TABLE users_articles_votes (
-        username VARCHAR REFERENCES users(username),
-        article_id INT REFERENCES articles(article_id),
+        username VARCHAR REFERENCES users(username) ON DELETE CASCADE,
+        article_id INT REFERENCES articles(article_id) ON DELETE CASCADE,
         votes INT DEFAULT 1 NOT NULL, 
         CONSTRAINT users_articles_votes_pk PRIMARY KEY(username,article_id)
       );`);
@@ -83,8 +83,8 @@ const seed = ({
     .then(() => {
       return db.query(`
       CREATE TABLE users_comments_votes (
-        username VARCHAR REFERENCES users(username),
-        comment_id INT REFERENCES comments(comment_id),
+        username VARCHAR REFERENCES users(username) ON DELETE CASCADE,
+        comment_id INT REFERENCES comments(comment_id) ON DELETE CASCADE,
         votes INT DEFAULT 1 NOT NULL, 
         CONSTRAINT users_comments_votes_pk PRIMARY KEY(username,comment_id)
       );`);
