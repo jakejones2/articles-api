@@ -48,7 +48,7 @@ module.exports = {
       successfulResponseBody: {
         article: {
           article_id: 14,
-          votes: 13,
+          votes: 0,
           comment_count: 0,
           author: "butter_bridge",
           title: "important new article",
