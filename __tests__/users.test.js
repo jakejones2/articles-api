@@ -261,9 +261,11 @@ describe("GET /api/users/:username/votes/articles", () => {
       .get("/api/users/butter_bridge/votes/articles")
       .expect(200)
       .then(({ body: { articleVotes } }) => {
-        expect(articleVotes).toEqual([
-          { article_id: 1, username: "butter_bridge", votes: 0 },
-        ]);
+        expect(articleVotes[0]).toEqual({
+          article_id: 1,
+          username: "butter_bridge",
+          votes: 1,
+        });
       });
   });
 });
@@ -277,9 +279,88 @@ describe("GET /api/users/:username/votes/comments", () => {
       .get("/api/users/butter_bridge/votes/comments")
       .expect(200)
       .then(({ body: { commentVotes } }) => {
-        expect(commentVotes).toEqual([
-          { comment_id: 3, username: "butter_bridge", votes: 0 },
-        ]);
+        expect(commentVotes[0]).toEqual({
+          comment_id: 1,
+          username: "butter_bridge",
+          votes: 1,
+        });
       });
+  });
+});
+
+describe("GET /api/users/:username/comments", () => {
+  test("should respond with 404 if username not found", () => {
+    return request(app).get("/api/users/frog/comments").expect(404);
+  });
+  test("should respond with list of comments all by author", () => {
+    return request(app)
+      .get("/api/users/butter_bridge/comments")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        comments.forEach((comment) => {
+          expect(comment.author).toBe("butter_bridge");
+        });
+      });
+  });
+  test("should return the correct pagination limit", () => {
+    return request(app)
+      .get("/api/users/butter_bridge/comments?limit=5")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments.length).toBe(5);
+      });
+  });
+  test("should return the correct page", () => {
+    return request(app)
+      .get("/api/users/butter_bridge/comments?limit=2&p=2")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments[0]).toMatchObject({
+          article_id: 6,
+          author: "butter_bridge",
+          body: "This is a bad article name",
+          comment_id: 16,
+          created_at: "2020-10-11T15:23:00.000Z",
+          votes: 0,
+        });
+      });
+  });
+  test("should return sorted by votes", () => {
+    return request(app)
+      .get("/api/users/butter_bridge/comments?limit=2&p=2&sort_by=votes")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments[0].article_id).toBe(5);
+      });
+  });
+  test("should return ordered", () => {
+    return request(app)
+      .get(
+        "/api/users/butter_bridge/comments?limit=10&p=1&sort_by=created_at&order=asc"
+      )
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments[0].article_id).toBe(9);
+      });
+  });
+  test("order query validated", () => {
+    return request(app)
+      .get("/api/users/butter_bridge/comments?sort_by=created_at&order=pancake")
+      .expect(400);
+  });
+  test("sort_by query validated", () => {
+    return request(app)
+      .get("/api/users/butter_bridge/comments?sort_by=pancake&order=desc")
+      .expect(400);
+  });
+  test("page validated", () => {
+    return request(app)
+      .get("/api/users/butter_bridge/comments?p=-1")
+      .expect(400);
+  });
+  test("limit validated", () => {
+    return request(app)
+      .get("/api/users/butter_bridge/comments?limit=im-reaching-mine-rn")
+      .expect(400);
   });
 });

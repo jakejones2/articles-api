@@ -28,4 +28,24 @@ function validatePatchComment(increase) {
   return Promise.resolve();
 }
 
-module.exports = { validatePostComment, validatePatchComment };
+function validateCommentQueries({ sort_by = "created_at", order = "desc" }) {
+  if (!["created_at", "votes"].includes(sort_by)) {
+    return Promise.reject({
+      status: 400,
+      msg: 'sort_by query only takes values of "votes" and "created_at"',
+    });
+  }
+  if (!["ASC", "DESC"].includes(order.toUpperCase())) {
+    return Promise.reject({
+      status: 400,
+      msg: 'Invalid "order" query. Must be "asc" or "desc".',
+    });
+  }
+  return Promise.resolve();
+}
+
+module.exports = {
+  validatePostComment,
+  validatePatchComment,
+  validateCommentQueries,
+};

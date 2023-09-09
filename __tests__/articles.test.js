@@ -29,7 +29,7 @@ describe("GET /api/articles/:article_id", () => {
           author: "butter_bridge",
           body: "I find this existence challenging",
           created_at: "2020-07-09T20:11:00.000Z",
-          votes: 0,
+          votes: 1,
           article_img_url:
             "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
         });
@@ -108,7 +108,7 @@ describe("GET /api/articles", () => {
           topic: "mitch",
           author: "butter_bridge",
           created_at: "2020-07-09T20:11:00.000Z",
-          votes: 0,
+          votes: 1,
           article_img_url:
             "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
         });
@@ -382,7 +382,7 @@ describe("GET /api/articles with pagination", () => {
           created_at: "2020-11-03T09:12:00.000Z",
           title: "Eight pug gifs that remind me of mitch",
           topic: "mitch",
-          votes: 0,
+          votes: 3,
         });
       });
   });

@@ -1,3 +1,4 @@
+const { commentData } = require("../../db/data/test-data");
 const {
   selectComments,
   insertComment,
@@ -20,29 +21,67 @@ const {
 const {
   validatePostComment,
   validatePatchComment,
+  validateCommentQueries,
 } = require("../../models/validators/comment-validators");
 
 function getComments(req, res, next) {
   let commentData;
+  let limit = req.query.limit;
+  let page = req.query.p;
+  let order = req.query.order;
   validatePaginationQueries(req.query)
     .then(() => {
+      return validateCommentQueries(req.query);
+    })
+    .then(() => {
+      if (req.query.sort_by === "votes") {
+        // get all the comments
+        req.query.limit = 10000;
+        req.query.p = 1;
+      }
       return selectComments(req.params.article_id, req.query);
     })
-    .then((comments) => {
-      commentData = comments;
+    .then((data) => {
+      commentData = data;
       return selectCommentVotes();
     })
     .then(({ rows }) => {
-      for (const comment of commentData.comments) {
-        const matchingVoteRow = rows.find(
-          (row) => row.comment_id === comment.comment_id
-        );
-        comment.votes = +matchingVoteRow?.votes || 0;
-      }
+      updateCommentsWithVoteData(commentData, rows);
       if (req.query.sort_by === "votes") {
-        commentData.comments.sort((a, b) => {
-          return b.votes - a.votes;
-        });
+        manuallySort(commentData, "votes", order);
+        manuallyPaginate(commentData, limit, page);
+      }
+      res.status(200).send(commentData);
+    })
+    .catch(next);
+}
+
+function getCommentsByAuthor(req, res, next) {
+  let commentData;
+  let limit = req.query.limit;
+  let page = req.query.p;
+  let order = req.query.order;
+  validatePaginationQueries(req.query)
+    .then(() => {
+      return validateCommentQueries(req.query);
+    })
+    .then(() => {
+      if (req.query.sort_by === "votes") {
+        // get all the comments
+        req.query.limit = 10000;
+        req.query.p = 1;
+      }
+      return selectCommentsByAuthor(req.params.username, req.query);
+    })
+    .then((data) => {
+      commentData = data;
+      return selectCommentVotes();
+    })
+    .then(({ rows }) => {
+      updateCommentsWithVoteData(commentData, rows);
+      if (req.query.sort_by === "votes") {
+        manuallySort(commentData, "votes", order);
+        manuallyPaginate(commentData, limit, page);
       }
       res.status(200).send(commentData);
     })
@@ -113,23 +152,28 @@ function patchComment(req, res, next) {
     .catch(next);
 }
 
-function getCommentsByAuthor(req, res, next) {
-  let comments;
-  selectCommentsByAuthor(req.params.username)
-    .then((commentsData) => {
-      comments = commentsData;
-      return selectCommentVotes();
-    })
-    .then(({ rows }) => {
-      for (const comment of comments) {
-        const matchingVoteRow = rows.find(
-          (row) => row.comment_id === comment.comment_id
-        );
-        comment.votes = +matchingVoteRow?.votes || 0;
-      }
-      res.status(200).send({ comments });
-    })
-    .catch(next);
+function manuallyPaginate(commentData, limit = 10, page = 1) {
+  commentData.comments = commentData.comments.slice(
+    (page - 1) * limit,
+    page * limit
+  );
+}
+
+function manuallySort({ comments }, field, order = "desc") {
+  comments.sort((a, b) => {
+    return order.toLowerCase() === "desc"
+      ? b[field] - a[field]
+      : a[field] - b[field];
+  });
+}
+
+function updateCommentsWithVoteData({ comments }, voteData) {
+  for (const comment of comments) {
+    const matchingVoteRow = voteData.find(
+      (row) => row.comment_id === comment.comment_id
+    );
+    comment.votes = +matchingVoteRow?.votes || 0;
+  }
 }
 
 module.exports = {
@@ -139,3 +183,6 @@ module.exports = {
   patchComment,
   getCommentsByAuthor,
 };
+
+// then redo tests
+// then do all the above for articles...

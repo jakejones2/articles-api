@@ -1,7 +1,7 @@
 const db = require("../db/connection");
 const format = require("pg-format");
 
-function selectComments(article_id, { limit = 10, p = 1 }) {
+function selectComments(article_id, { limit = 10, p = 1, order = "DESC" }) {
   return db
     .query(
       `
@@ -10,7 +10,7 @@ function selectComments(article_id, { limit = 10, p = 1 }) {
         CAST(COUNT(*) OVER() AS  INT) AS total_count 
       FROM comments 
       WHERE article_id = $1
-      ORDER BY created_at DESC 
+      ORDER BY created_at ${order}  
       LIMIT $2 
       OFFSET $3
       `,
@@ -20,12 +20,28 @@ function selectComments(article_id, { limit = 10, p = 1 }) {
       if (!rows.length) {
         return Promise.reject({ status: 404, msg: "No comments found" });
       }
-      const totalCount = rows[0].total_count;
-      const comments = rows.map((row) => {
-        delete row.total_count;
-        return row;
-      });
-      return { comments, totalCount };
+      return extractTotalCountAsKey(rows);
+    });
+}
+
+function selectCommentsByAuthor(author, { p = 1, limit = 10, order = "DESC" }) {
+  return db
+    .query(
+      `
+      SELECT
+        *,
+        CAST(COUNT(*) OVER() AS  INT) AS total_count
+      FROM comments 
+      WHERE author = $1 
+      ORDER BY created_at ${order} 
+      LIMIT $2 OFFSET $3;`,
+      [author, limit, (p - 1) * limit]
+    )
+    .then(({ rows }) => {
+      if (!rows.length) {
+        return Promise.reject({ status: 404, msg: "No comments found" });
+      }
+      return extractTotalCountAsKey(rows);
     });
 }
 
@@ -69,15 +85,13 @@ function removeComment(comment_id) {
     });
 }
 
-function selectCommentsByAuthor(author) {
-  return db
-    .query(
-      "SELECT * FROM comments WHERE author = $1 ORDER BY created_at DESC;",
-      [author]
-    )
-    .then(({ rows }) => {
-      return rows;
-    });
+function extractTotalCountAsKey(rows) {
+  const totalCount = rows[0].total_count;
+  const comments = rows.map((row) => {
+    delete row.total_count;
+    return row;
+  });
+  return { comments, totalCount };
 }
 
 module.exports = {

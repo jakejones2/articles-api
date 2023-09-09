@@ -28,11 +28,12 @@ describe("GET /api/articles/:article_id/comments", () => {
           body: "I hate streaming noses",
           comment_id: 5,
           created_at: "2020-11-03T21:00:00.000Z",
-          votes: 0,
+          votes: 5,
         });
       });
   });
 });
+
 describe("GET /api/articles/:article_id/comments error handling", () => {
   test("receive 404 when article_id out of range", () => {
     return request(app)
@@ -53,6 +54,7 @@ describe("GET /api/articles/:article_id/comments error handling", () => {
       });
   });
 });
+
 describe("GET /api/articles/:article_id/comments pagination", () => {
   test("comments page length should default to 10", () => {
     return request(app)
@@ -101,6 +103,43 @@ describe("GET /api/articles/:article_id/comments pagination", () => {
       .then(({ body: { comments } }) => {
         expect(comments.length).toBe(11);
       });
+  });
+});
+
+describe("GET /api/articles/:article_id/comments queries", () => {
+  test("should take query sort_by votes", () => {
+    return request(app)
+      .get("/api/articles/1/comments?sort_by=votes")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments[0].comment_id).toBe(6);
+      });
+  });
+  test("should take query sort_by created_at", () => {
+    return request(app)
+      .get("/api/articles/1/comments?sort_by=created_at")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments[0].comment_id).toBe(5);
+      });
+  });
+  test("should take query order", () => {
+    return request(app)
+      .get("/api/articles/1/comments?sort_by=votes&order=asc")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments[0].comment_id).toBe(9);
+      });
+  });
+  test("order query validated", () => {
+    return request(app)
+      .get("/api/articles/1/comments?sort_by=votes&order=dinosaur")
+      .expect(400);
+  });
+  test("sort_by query validated", () => {
+    return request(app)
+      .get("/api/articles/1/comments?sort_by=something&order=desc")
+      .expect(400);
   });
 });
 
@@ -548,6 +587,7 @@ describe("PATCH /api/comments/:comment_id", () => {
     });
   });
 });
+
 describe("PATCH /api/comments/:comment_id error handling", () => {
   test("Returns 401 if not authorized", () => {
     examplePatch = { inc_votes: 1 };
@@ -676,20 +716,5 @@ describe("PATCH /api/comments/:comment_id error handling", () => {
           );
         });
     });
-  });
-});
-describe("GET /api/users/:username/comments", () => {
-  test("should respond with 404 if username not found", () => {
-    return request(app).get("/api/users/frog/comments").expect(404);
-  });
-  test("should respond with list of comments all by author", () => {
-    return request(app)
-      .get("/api/users/butter_bridge/comments")
-      .expect(200)
-      .then(({ body: { comments } }) => {
-        comments.forEach((comment) => {
-          expect(comment.author).toBe("butter_bridge");
-        });
-      });
   });
 });

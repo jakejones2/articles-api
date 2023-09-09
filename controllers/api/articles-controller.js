@@ -36,11 +36,14 @@ function getArticleById(req, res, next) {
 }
 
 function getArticles(req, res, next) {
+  let sortByVotes = false;
+  let limit = req.query.limit;
+  let page = req.query.p;
+  let order = req.query.order;
   const promises = [
     validateArticleQueries(req.query),
     validatePaginationQueries(req.query),
   ];
-  let sortByVotes = false;
   const { topic, author, sort_by } = req.query;
   if (sort_by === "votes") {
     req.query.sort_by = "created_at";
@@ -51,23 +54,22 @@ function getArticles(req, res, next) {
   let articleData;
   Promise.all(promises)
     .then(() => {
+      if (sortByVotes) {
+        // get all the articles
+        req.query.limit = 10000;
+        req.query.p = 1;
+      }
       return selectArticles(req.query);
     })
-    .then((rows) => {
-      articleData = rows;
+    .then((data) => {
+      articleData = data;
       return selectArticleVotes();
     })
     .then(({ rows }) => {
-      for (const article of articleData.articles) {
-        const matchingVoteRow = rows.find(
-          (row) => row.article_id === article.article_id
-        );
-        article.votes = +matchingVoteRow?.votes || 0;
-      }
+      updateArticlesWithVoteData(articleData, rows);
       if (sortByVotes) {
-        articleData.articles.sort((a, b) => {
-          return a.votes - b.votes;
-        });
+        manuallySort(articleData, "votes", order);
+        manuallyPaginate(articleData, limit, page);
       }
       res.status(200).send(articleData);
     })
@@ -142,6 +144,30 @@ function deleteArticleById(req, res, next) {
       res.sendStatus(204);
     })
     .catch(next);
+}
+
+function updateArticlesWithVoteData({ articles }, voteData) {
+  for (const article of articles) {
+    const matchingVoteRow = voteData.find(
+      (row) => row.article_id === article.article_id
+    );
+    article.votes = +matchingVoteRow?.votes || 0;
+  }
+}
+
+function manuallyPaginate(articleData, limit = 10, page = 1) {
+  articleData.articles = articleData.articles.slice(
+    (page - 1) * limit,
+    page * limit
+  );
+}
+
+function manuallySort({ articles }, field, order = "desc") {
+  articles.sort((a, b) => {
+    return order.toLowerCase() === "desc"
+      ? b[field] - a[field]
+      : a[field] - b[field];
+  });
 }
 
 module.exports = {
