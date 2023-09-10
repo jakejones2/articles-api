@@ -23,6 +23,7 @@ const {
   validatePatchComment,
   validateCommentQueries,
 } = require("../../models/validators/comment-validators");
+const { getUserCommentVotes } = require("./user-controller");
 
 function getComments(req, res, next) {
   let commentData;
@@ -89,9 +90,16 @@ function getCommentsByAuthor(req, res, next) {
 }
 
 function getComment(req, res, next) {
+  let commentData;
   selectComment(req.params.comment_id)
     .then((comment) => {
-      res.status(200).send({ comment });
+      commentData = { comments: [comment] };
+      return selectCommentVotes();
+    })
+    .then(({ rows }) => {
+      updateCommentsWithVoteData(commentData, rows);
+      const singleCommentData = { comment: commentData.comments[0] };
+      res.status(200).send(singleCommentData);
     })
     .catch(next);
 }
