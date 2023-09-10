@@ -173,6 +173,7 @@ module.exports = {
           article_id: 18,
           author: "happyamy2016",
           created_at: "2020-10-10T22:03:00.000Z",
+          votes: 4,
         },
       },
       requestHeaderIncludes: null,
