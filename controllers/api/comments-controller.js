@@ -88,6 +88,14 @@ function getCommentsByAuthor(req, res, next) {
     .catch(next);
 }
 
+function getComment(req, res, next) {
+  selectComment(req.params.comment_id)
+    .then((comment) => {
+      res.status(200).send({ comment });
+    })
+    .catch(next);
+}
+
 function postComment(req, res, next) {
   validatePostComment(req.body)
     .then(() => {
@@ -182,6 +190,7 @@ module.exports = {
   deleteComment,
   patchComment,
   getCommentsByAuthor,
+  getComment,
 };
 
 // then redo tests

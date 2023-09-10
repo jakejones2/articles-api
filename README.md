@@ -26,6 +26,7 @@ A quick overview of GET endpoints is below. The remaining CRUD operations requir
   - `?order=<asc/desc>`
   - `?limit=<num of articles per page>`
   - `?p=<page number>`
+- `/api/comments/:comment_id`
 - `/api/articles/:article_id`
 - `/api/articles/:article_id/comments`
   - `?limit=<num of commments per page>`
@@ -179,6 +180,8 @@ Accepts the following queries:
 - `p` (int) determines the page number
 - `sort_by` (str) takes the values `votes` or `created_at`
 - `order` (str) takes `asc` or `desc`
+
+GET `/api/comments/:comment_id` for a single comment.
 
 ### POST
 

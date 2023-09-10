@@ -162,6 +162,22 @@ module.exports = {
     },
   },
   "/api/comments/:comment_id": {
+    "GET /api/comments/:comment_id": {
+      description: "Retrieves comment by id",
+      queries: [],
+      successfulRequestBody: null,
+      successfulResponseBody: {
+        comment: {
+          comment_id: 4,
+          body: "Rerum voluptatem quam odio facilis quis illo unde. Ex blanditiis optio tenetur sunt. Cumque dolor ducimus et qui officia quasi non illum reiciendis.",
+          article_id: 18,
+          author: "happyamy2016",
+          created_at: "2020-10-10T22:03:00.000Z",
+        },
+      },
+      requestHeaderIncludes: null,
+      responseHeaderIncludes: null,
+    },
     "PATCH /api/comments/:comment_id": {
       description:
         "Updates the votes on a comment based on comment_id in url. Cannot increment or decrement by more than 5 votes, and users can only vote once per article.",

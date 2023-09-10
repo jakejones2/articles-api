@@ -13,6 +13,36 @@ beforeEach(() => {
   return seed(data);
 });
 
+describe("GET /api/comments/:comment_id", () => {
+  test("should return given comment", () => {
+    return request(app)
+      .get("/api/comments/1")
+      .expect(200)
+      .then(({ body: { comment } }) => {
+        expect(comment).toMatchObject({
+          article_id: 9,
+          author: "butter_bridge",
+          body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+          comment_id: 1,
+          created_at: "2020-04-06T12:17:00.000Z",
+        });
+      });
+  });
+  test("should return 400 if not given a valid ID", () => {
+    return request(app)
+      .get("/api/comments/pancake")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe(
+          "Bad request. Individual comments and articles must be retrieved by ID, e.g. GET /api/articles/3. To find an ID, search all articles/comments with the queries available."
+        );
+      });
+  });
+  test("should return 404 if comment not found", () => {
+    return request(app).get("/api/comments/10000").expect(404);
+  });
+});
+
 describe("GET /api/articles/:article_id/comments", () => {
   test("GET 200 from /api/articles/:article_id/comments ", () => {
     return request(app).get("/api/articles/1/comments").expect(200);
