@@ -325,7 +325,7 @@ module.exports = {
       requestHeaderIncludes: null,
       responseHeaderIncludes: null,
     },
-    "GET /api/users/:username/votes/comments": {
+    "GET /api/users/:username/votes/articles": {
       description: "Retrieves all votes on articles for a user",
       queries: [],
       successfulRequestBody: null,
